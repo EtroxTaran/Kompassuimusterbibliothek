@@ -47,9 +47,9 @@ import {
 } from 'lucide-react';
 
 // Opportunity status
-type OpportunityStatus = 'new' | 'qualifying' | 'proposal' | 'negotiation' | 'won' | 'lost';
+export type OpportunityStatus = 'new' | 'qualifying' | 'proposal' | 'negotiation' | 'won' | 'lost';
 
-interface Opportunity {
+export interface Opportunity {
   id: string;
   title: string;
   customer: string;
@@ -66,7 +66,7 @@ interface Opportunity {
 }
 
 // Status config using design system tokens
-const statusConfig: Record<
+export const statusConfig: Record<
   OpportunityStatus,
   { label: string; color: string; bgColor: string; headerBg: string; icon: any }
 > = {
@@ -529,8 +529,8 @@ function KanbanColumn({
 }
 
 // Full pipeline view
-function OpportunityPipelineView({ userRole = 'GF' }: { userRole?: 'GF' | 'PLAN' | 'ADM' | 'KALK' }) {
-  const [opportunities, setOpportunities] = useState(sampleOpportunities);
+export function OpportunityPipelineView({ userRole = 'GF', initialOpportunities }: { userRole?: 'GF' | 'PLAN' | 'ADM' | 'KALK', initialOpportunities?: Opportunity[] }) {
+  const [opportunities, setOpportunities] = useState(initialOpportunities || sampleOpportunities);
   const [filterOwner, setFilterOwner] = useState<string>('all');
 
   const canEdit = userRole === 'GF' || userRole === 'PLAN';

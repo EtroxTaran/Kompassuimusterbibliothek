@@ -14,6 +14,7 @@ import { CustomerDetailPage } from './CustomerDetailPage';
 // Sales
 import { OpportunityPipelineDemo } from './OpportunityPipelineDemo';
 import { OfferListDemo } from './OfferList';
+import { MapRoutePlannerDemo } from './MapRoutePlanner';
 
 // Projects
 import { ProjectPortfolioDemo } from './ProjectPortfolioDemo';
@@ -151,6 +152,8 @@ function KompassAppContent() {
         return <OfferListDemo />;
       case 'pipeline':
         return <OpportunityPipelineDemo />;
+      case 'touren':
+        return <MapRoutePlannerDemo />;
       
       // Projekte
       case 'projektuebersicht':
@@ -199,6 +202,7 @@ function KompassAppContent() {
       opportunities: [{ label: 'Vertrieb' }, { label: 'Opportunities' }],
       angebote: [{ label: 'Vertrieb' }, { label: 'Angebote' }],
       pipeline: [{ label: 'Vertrieb' }, { label: 'Pipeline' }],
+      touren: [{ label: 'Vertrieb' }, { label: 'Tourenplanung' }],
       projektuebersicht: [{ label: 'Projekte' }, { label: 'Übersicht' }],
       zeiterfassung: [{ label: 'Projekte' }, { label: 'Zeiterfassung' }],
       'rechnungen-list': [{ label: 'Rechnungen' }, { label: 'Übersicht' }],

@@ -51,7 +51,6 @@ import {
   Activity,
   Check,
   Pause,
-  X,
   Circle,
   Clock,
   Building2,
@@ -62,6 +61,8 @@ import {
   Filter,
   Download,
   Plus,
+  Search,
+  X,
 } from 'lucide-react';
 import { useData, Project } from './providers/DataProvider';
 
@@ -296,7 +297,7 @@ function ProjectRow({
 }
 
 // Table view
-function ProjectTableView({ projects, userRole = 'GF', onProjectClick }: { projects: Project[]; userRole?: string, onProjectClick?: (id: string) => void }) {
+export function ProjectTableView({ projects, userRole = 'GF', onProjectClick }: { projects: Project[]; userRole?: string, onProjectClick?: (id: string) => void }) {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
 
   const toggleSelectAll = () => {

@@ -122,7 +122,7 @@ const templates = [
 ];
 
 // Desktop Dialog Form
-function DesktopActivityForm() {
+export function ActivityFormDialog({ trigger }: { trigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [activityType, setActivityType] = useState('call');
   const [customer, setCustomer] = useState('1');
@@ -212,17 +212,16 @@ function DesktopActivityForm() {
   };
 
   return (
-    <div className="space-y-4">
-      <h4 className="mb-4">Desktop Dialog-Formular</h4>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger || (
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             Aktivität erfassen
           </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        )}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Aktivität erfassen</DialogTitle>
             <DialogDescription>
@@ -472,12 +471,7 @@ function DesktopActivityForm() {
             <Button onClick={handleSave}>Aktivität speichern</Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
-
-      <p className="text-sm text-muted-foreground">
-        Dialog mit allen Feldern, Vorlagenauswahl und Spracheingabe
-      </p>
-    </div>
+    </Dialog>
   );
 }
 
@@ -1030,7 +1024,13 @@ export function ActivityProtocolFormDemo() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <DesktopActivityForm />
+          <div className="space-y-4">
+            <h4 className="mb-4">Desktop Dialog-Formular</h4>
+            <ActivityFormDialog />
+            <p className="text-sm text-muted-foreground">
+              Dialog mit allen Feldern, Vorlagenauswahl und Spracheingabe
+            </p>
+          </div>
         </CardContent>
       </Card>
 

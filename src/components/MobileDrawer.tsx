@@ -60,6 +60,7 @@ export function MobileDrawer({
         { id: 'opportunities', label: 'Opportunities' },
         { id: 'angebote', label: 'Angebote' },
         { id: 'pipeline', label: 'Pipeline' },
+        { id: 'touren', label: 'Tourenplanung' },
       ],
     },
     {

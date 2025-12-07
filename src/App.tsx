@@ -89,6 +89,40 @@ import { TourDetailViewDemo } from './components/TourDetailView';
 import { INNDashboardDemo } from './components/INNDashboard';
 import { DataImportExportDemo } from './components/DataImportExport';
 
+// Demo Components
+import { ActivityTimelineDemo } from './components/ActivityTimelineDemo';
+import { ContactListDemo } from './components/ContactListDemo';
+import { CustomerListDemo } from './components/CustomerListDemo';
+import { LocationListDemo } from './components/LocationListDemo';
+import { OpportunityPipelineDemo } from './components/OpportunityPipelineDemo';
+import { OfferListDemo } from './components/OfferList';
+import { ContractListDemo } from './components/ContractList';
+import { ProjectPortfolioDemo } from './components/ProjectPortfolioDemo';
+import { ContactDetailViewDemo } from './components/ContactDetailView';
+import { CustomerDetailPageDemo } from './components/CustomerDetailPage';
+import { OpportunityDetailViewDemo } from './components/OpportunityDetailView';
+import { ProjectDetailViewDemo } from './components/ProjectDetailView';
+import { OfferDetailViewDemo } from './components/OfferDetailView';
+import { ContractDetailViewDemo } from './components/ContractDetailView';
+import { ADMDashboardDemo } from './components/ADMDashboard';
+import { BUCHDashboardDemo } from './components/BUCHDashboard';
+import { GFDashboardDemo } from './components/GFDashboard';
+import { KALKDashboardDemo } from './components/KALKDashboard';
+import { PLANDashboardDemo } from './components/PLANDashboard';
+import { TaskDashboardDemo } from './components/TaskDashboard';
+import { BusinessCardScannerDemo } from './components/BusinessCardScanner';
+import { CustomerQuickViewDemo } from './components/CustomerQuickView';
+import { MapRoutePlannerDemo } from './components/MapRoutePlanner';
+import { MobileTaskManagementDemo } from './components/MobileTaskManagement';
+import { CalendarViewDemo } from './components/CalendarView';
+import { PhotoDocumentationDemo } from './components/PhotoDocumentation';
+import { QuickActivityLogDemo } from './components/QuickActivityLog';
+import { CalendarExportDialogDemo } from './components/CalendarExportDialog';
+import { FinancialFlowDemo } from './components/FinancialFlow';
+import { MobilePerformanceDemo } from './components/MobilePerformance';
+import { PWAValidationDemo } from './components/PWAValidation';
+import { ExpenseListViewDemo } from './components/ExpenseListView';
+
 // Figma Import Template
 import { FigmaImportTemplateDemo } from './components/FigmaImportTemplate';
 

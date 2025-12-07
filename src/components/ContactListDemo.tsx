@@ -49,7 +49,7 @@ import {
 } from 'lucide-react';
 
 // Contact types
-type DecisionRole =
+export type DecisionRole =
   | 'decision-maker'
   | 'key-influencer'
   | 'recommender'
@@ -57,9 +57,9 @@ type DecisionRole =
   | 'operational'
   | 'informational';
 
-type AuthorityLevel = 'low' | 'medium' | 'high' | 'final';
+export type AuthorityLevel = 'low' | 'medium' | 'high' | 'final';
 
-interface Contact {
+export interface Contact {
   id: string;
   firstName: string;
   lastName: string;
@@ -81,7 +81,7 @@ interface Contact {
 }
 
 // Decision role config
-const decisionRoleConfig: Record<
+export const decisionRoleConfig: Record<
   DecisionRole,
   { label: string; color: string; bgColor: string; textColor: string; icon: any }
 > = {
@@ -290,7 +290,7 @@ function AuthorityLevelDisplay({ level }: { level: AuthorityLevel }) {
 }
 
 // Contact Card Component
-function ContactCard({
+export function ContactCard({
   contact,
   isRestricted = false,
 }: {
@@ -546,8 +546,8 @@ function ContactCard({
 }
 
 // Full Contact List View
-function ContactListView() {
-  const [contacts] = useState(sampleContacts);
+export function ContactListView({ initialContacts }: { initialContacts?: Contact[] }) {
+  const [contacts] = useState(initialContacts || sampleContacts);
   const [filter, setFilter] = useState<'all' | 'decision-makers' | 'primary'>('all');
   const [sortBy, setSortBy] = useState('name');
 

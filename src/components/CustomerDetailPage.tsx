@@ -57,51 +57,220 @@ import {
   CheckCircle,
   XCircle,
   ArrowLeft,
+  Briefcase,
+  Clock as ClockIcon,
 } from 'lucide-react';
-import { Customer } from './providers/DataProvider';
+import { Customer, Project } from './providers/DataProvider';
+import { LocationListView, Location } from './LocationListDemo';
+import { ContactListView, Contact } from './ContactListDemo';
+import { OpportunityPipelineView, Opportunity } from './OpportunityPipelineDemo';
+import { ProjectTableView } from './ProjectPortfolioDemo';
+import { ActivityTimeline, Activity } from './ActivityTimelineDemo';
 
 // User role type
 type UserRole = 'GF' | 'BUCH' | 'PLAN' | 'ADM' | 'KALK';
 
 // Mock metrics
 const mockMetrics = {
-  opportunities: { active: 5, totalValue: 625000 },
-  projects: { active: 3, totalVolume: 1200000 },
+  opportunities: { active: 2, totalValue: 160000 },
+  projects: { active: 1, totalVolume: 450000 },
   revenue: { thisYear: 450000 },
-  lastActivity: { daysAgo: 3, type: 'Telefonat' },
+  lastActivity: { daysAgo: 1, type: 'Telefonat' },
 };
 
-// Mock locations
-const mockLocations = [
-  { id: '1', name: 'Filiale München Süd', type: 'Filiale', isPrimary: true },
-  { id: '2', name: 'Lager München Nord', type: 'Lager' },
-  { id: '3', name: 'Verkaufsstelle Starnberg', type: 'Verkaufsstelle' },
-];
-
-// Mock contacts
-const mockContacts = [
+// Mock projects specific to this customer
+const customerProjects: Project[] = [
   {
     id: '1',
-    name: 'Dr. Hans Müller',
-    position: 'Geschäftsführer',
-    email: 'h.mueller@hofladen-mueller.de',
-    role: 'decision-maker',
+    number: 'P-2024-B023',
+    customer: 'Hofladen Müller GmbH',
+    customerId: '1',
+    customerLocation: 'München',
+    name: 'Ladeneinrichtung Neueröffnung',
+    status: 'inProgress',
+    progress: 65,
+    milestones: { completed: 12, total: 18 },
+    startDate: '2024-12-01',
+    endDate: '2025-02-28',
+    budget: 450000,
+    actualCost: 290000,
+    margin: 15.6,
+    manager: { name: 'Thomas Fischer', initials: 'TF' },
+    teamSize: 5,
   },
   {
     id: '2',
-    name: 'Anna Weber',
-    position: 'Einkaufsleiterin',
-    email: 'a.weber@hofladen-mueller.de',
-    role: 'influencer',
-  },
-  {
-    id: '3',
-    name: 'Thomas Schmidt',
-    position: 'Vertriebsleiter',
-    email: 't.schmidt@hofladen-mueller.de',
-    role: 'user',
+    number: 'P-2024-A015',
+    customer: 'Hofladen Müller GmbH',
+    customerId: '1',
+    customerLocation: 'Augsburg',
+    name: 'Renovierung Verkaufsfläche',
+    status: 'completed',
+    progress: 100,
+    milestones: { completed: 8, total: 8 },
+    startDate: '2024-09-01',
+    endDate: '2024-10-30',
+    budget: 85000,
+    actualCost: 82000,
+    margin: 18.2,
+    manager: { name: 'Michael Schmidt', initials: 'MS' },
+    teamSize: 3,
   },
 ];
+
+// Mock locations for this customer
+const customerLocations: Location[] = [
+  {
+    id: '1',
+    name: 'Filiale München Süd',
+    type: 'branch',
+    status: 'active',
+    isPrimary: true,
+    address: {
+      street: 'Industriestraße 42',
+      postalCode: '81379',
+      city: 'München',
+      country: 'Deutschland',
+    },
+    primaryContact: {
+      name: 'Hans Müller',
+      phone: '+49-89-1234567',
+    },
+    additionalContacts: 2,
+    deliveryNotes: 'Hintereingang nutzen. Parkplätze vorhanden.',
+  },
+  {
+    id: '2',
+    name: 'Hauptsitz',
+    type: 'headquarter',
+    status: 'active',
+    isPrimary: false,
+    address: {
+      street: 'Hauptstraße 1',
+      postalCode: '80331',
+      city: 'München',
+      country: 'Deutschland',
+    },
+    primaryContact: {
+      name: 'Maria Schmidt',
+      phone: '+49-89-9876543',
+    },
+  },
+];
+
+// Mock contacts for this customer
+const customerContacts: Contact[] = [
+    {
+    id: '1',
+    firstName: 'Hans',
+    lastName: 'Müller',
+    title: 'Dr.',
+    position: 'Geschäftsführer',
+    decisionRole: 'decision-maker',
+    authorityLevel: 'final',
+    approvalLimit: 50000,
+    mobile: '+49-170-1234567',
+    phone: '+49-89-1234567',
+    email: 'h.mueller@hofladen-mueller.de',
+    preferredContact: 'email',
+    assignedLocations: ['Filiale München Süd', 'Hauptsitz'],
+    isPrimaryContact: true,
+    primaryForLocations: ['Filiale München Süd', 'Hauptsitz'],
+    lastActivity: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    canApprove: true,
+  },
+  {
+    id: '2',
+    firstName: 'Maria',
+    lastName: 'Schmidt',
+    position: 'Einkaufsleiterin',
+    decisionRole: 'key-influencer',
+    authorityLevel: 'high',
+    approvalLimit: 20000,
+    phone: '+49-89-9876543',
+    email: 'm.schmidt@hofladen-mueller.de',
+    preferredContact: 'phone',
+    functions: ['Einkaufsleiterin'],
+    assignedLocations: ['Hauptsitz'],
+    isPrimaryContact: true,
+    primaryForLocations: ['Hauptsitz'],
+    lastActivity: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    canApprove: true,
+  },
+];
+
+// Mock opportunities
+const customerOpportunities: Opportunity[] = [
+    {
+    id: '1',
+    title: 'Ladeneinrichtung Neueröffnung',
+    customer: 'Hofladen Müller GmbH',
+    value: 125000,
+    probability: 60,
+    expectedCloseDate: '2025-02-15',
+    owner: { name: 'Michael Schmidt', initials: 'MS' },
+    tags: ['Großprojekt', 'Q1'],
+    lastActivity: 'Vor 2 Tagen',
+    status: 'proposal',
+  },
+  {
+    id: '2',
+    title: 'Beleuchtung LED Umstellung',
+    customer: 'Hofladen Müller GmbH',
+    value: 35000,
+    probability: 90,
+    expectedCloseDate: '2025-01-15',
+    owner: { name: 'Thomas Müller', initials: 'TM' },
+    lastActivity: 'Vor 1 Tag',
+    status: 'negotiation',
+  },
+];
+
+// Mock activities
+const customerActivities: Activity[] = [
+    {
+    id: '1',
+    type: 'phone',
+    title: 'Telefonat mit Hr. Müller',
+    customerId: '1',
+    customerName: 'Hofladen Müller GmbH',
+    contactName: 'Hans Müller',
+    contactRole: 'Geschäftsführer',
+    description:
+      'Besprochen: Neue Filiale in München Süd geplant für Q1 2025. Interesse an Ladeneinrichtung im Wert von ca. 120.000 €. Wünscht detailliertes Angebot bis Ende des Monats.',
+    userId: '1',
+    userName: 'Michael Schmidt',
+    duration: 15,
+    followUp: '2024-11-22',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: '4',
+    type: 'note',
+    title: 'Kundennotiz',
+    customerId: '1',
+    customerName: 'Hofladen Müller GmbH',
+    description: 'Kunde bevorzugt natürliche Materialien (Holz, keine Kunststoffe). Budget flexibel.',
+    userId: '1',
+    userName: 'Michael Schmidt',
+    isPrivate: true,
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: '6',
+    type: 'visit',
+    title: 'Vor-Ort-Termin',
+    customerId: '1',
+    customerName: 'Hofladen Müller GmbH',
+    contactName: 'Hans Müller',
+    description: 'Standortbesichtigung für neue Filiale. Räumlichkeiten geprüft, Maße aufgenommen.',
+    userId: '3',
+    userName: 'Thomas Fischer',
+    duration: 90,
+    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
 
 // Format currency
 function formatCurrency(amount: number): string {
@@ -339,11 +508,11 @@ export function CustomerDetailPage({
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full justify-start overflow-x-auto">
             <TabsTrigger value="overview">Übersicht</TabsTrigger>
-            <TabsTrigger value="locations">Standorte ({mockLocations.length})</TabsTrigger>
-            <TabsTrigger value="contacts">Kontakte ({mockContacts.length})</TabsTrigger>
-            <TabsTrigger value="opportunities">Opportunities (3)</TabsTrigger>
-            <TabsTrigger value="projects">Projekte (2)</TabsTrigger>
-            <TabsTrigger value="invoices">Rechnungen (5)</TabsTrigger>
+            <TabsTrigger value="locations">Standorte ({customerLocations.length})</TabsTrigger>
+            <TabsTrigger value="contacts">Kontakte ({customerContacts.length})</TabsTrigger>
+            <TabsTrigger value="opportunities">Opportunities ({customerOpportunities.length})</TabsTrigger>
+            <TabsTrigger value="projects">Projekte ({customerProjects.length})</TabsTrigger>
+            <TabsTrigger value="protocols">Kontaktprotokoll</TabsTrigger>
           </TabsList>
 
           {/* Tab 1: Overview */}
@@ -491,19 +660,23 @@ export function CustomerDetailPage({
           </TabsContent>
           
           <TabsContent value="locations">
-             <Card>
-                 <CardContent className="p-8 text-center text-muted-foreground">
-                    Standorte Tab Inhalt...
-                 </CardContent>
-             </Card>
+            <LocationListView userRole={currentUserRole === 'ADM' ? 'ADM' : 'GF'} initialLocations={customerLocations} />
           </TabsContent>
           
            <TabsContent value="contacts">
-             <Card>
-                 <CardContent className="p-8 text-center text-muted-foreground">
-                    Kontakte Tab Inhalt...
-                 </CardContent>
-             </Card>
+             <ContactListView initialContacts={customerContacts} />
+          </TabsContent>
+
+          <TabsContent value="opportunities">
+             <OpportunityPipelineView userRole={currentUserRole === 'ADM' ? 'ADM' : 'GF'} initialOpportunities={customerOpportunities} />
+          </TabsContent>
+
+          <TabsContent value="projects">
+             <ProjectTableView projects={customerProjects} userRole={currentUserRole === 'ADM' ? 'ADM' : 'GF'} />
+          </TabsContent>
+
+          <TabsContent value="protocols">
+             <ActivityTimeline initialActivities={customerActivities} />
           </TabsContent>
         </Tabs>
       </div>
@@ -526,6 +699,88 @@ export function CustomerDetailPage({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+export function CustomerDetailPageDemo() {
+  const [currentRole, setCurrentRole] = useState<UserRole>('PLAN');
+
+  const mockCustomer: Customer = {
+    id: '1',
+    companyName: 'Hofladen Müller GmbH',
+    vatId: 'DE123456789',
+    customerType: 'Bestandskunde',
+    industry: 'Lebensmitteleinzelhandel',
+    rating: 'A',
+    status: 'active',
+    ownerId: '1',
+    owner: {
+      name: 'Michael Schmidt',
+      initials: 'MS',
+    },
+    email: 'info@hofladen-mueller.de',
+    phone: '+49 89 12345678',
+    website: 'https://www.hofladen-mueller.de',
+    billingAddress: {
+      street: 'Marktplatz 1',
+      postalCode: '80331',
+      city: 'München',
+      country: 'Deutschland',
+    },
+    notes: 'Kunde legt großen Wert auf regionale Produkte und nachhaltige Ladeneinrichtung.',
+    createdAt: '2023-05-15T10:00:00Z',
+    updatedAt: '2024-11-10T14:30:00Z',
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Customer Detail Page - Rollenansicht</CardTitle>
+          <CardDescription>
+            Wechseln Sie zwischen Rollen, um unterschiedliche Berechtigungen zu sehen
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Button
+              variant={currentRole === 'GF' ? 'default' : 'outline'}
+              onClick={() => setCurrentRole('GF')}
+            >
+              GF (Voller Zugriff)
+            </Button>
+            <Button
+              variant={currentRole === 'PLAN' ? 'default' : 'outline'}
+              onClick={() => setCurrentRole('PLAN')}
+            >
+              PLAN (Bearbeiten)
+            </Button>
+            <Button
+              variant={currentRole === 'ADM' ? 'default' : 'outline'}
+              onClick={() => setCurrentRole('ADM')}
+            >
+              ADM (Eigene Kunden)
+            </Button>
+            <Button
+              variant={currentRole === 'BUCH' ? 'default' : 'outline'}
+              onClick={() => setCurrentRole('BUCH')}
+            >
+              BUCH (Finanzdaten)
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
+      <div className="border rounded-lg overflow-hidden">
+        <CustomerDetailPage
+          customer={mockCustomer}
+          currentUserRole={currentRole}
+          currentUserId="1"
+        />
+      </div>
     </div>
   );
 }

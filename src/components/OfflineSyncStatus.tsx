@@ -299,9 +299,9 @@ function ConflictResolutionDialog({
       <DialogContent className="max-w-2xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Konflikt lösen</DialogTitle>
-          <p className="text-muted-foreground">
+          <DialogDescription>
             {conflict.entityType}: {conflict.entity}
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="py-4">

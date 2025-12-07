@@ -4,7 +4,7 @@ import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
-import { Sheet, SheetContent } from './ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from './ui/sheet';
 import { toast } from 'sonner@2.0.3';
 import {
   MapPin,
@@ -35,8 +35,10 @@ import {
   MoreVertical,
 } from 'lucide-react';
 
+import { GoogleMapsView } from './GoogleMapsView';
+
 // Customer location type
-interface CustomerLocation {
+export interface CustomerLocation {
   id: string;
   companyName: string;
   address: string;
@@ -50,7 +52,7 @@ interface CustomerLocation {
 }
 
 // Route stop type
-interface RouteStop {
+export interface RouteStop {
   id: string;
   type: 'current' | 'customer';
   location: CustomerLocation | null;
@@ -148,6 +150,13 @@ function CustomerInfoSheet({
         className="h-auto max-h-[60vh] p-0 border-0 rounded-t-xl"
         onInteractOutside={(e) => e.preventDefault()}
       >
+        <div className="sr-only">
+          <SheetTitle>Kunden Details</SheetTitle>
+          <SheetDescription>
+            Details und Aktionen für {customer.companyName}
+          </SheetDescription>
+        </div>
+
         {/* Handle Bar */}
         <div className="flex justify-center py-3">
           <div className="w-12 h-1 bg-muted-foreground/20 rounded-full" />
@@ -193,12 +202,42 @@ function CustomerInfoSheet({
                 onClose();
               }}
             >
-              <Navigation className="mr-2 h-5 w-5" />
-              Route planen
+              <Route className="mr-2 h-5 w-5" />
+              Zur Route hinzufügen
             </Button>
+            
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
+                className="w-full"
+                onClick={() => {
+                  window.open(
+                    `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(customer.address)}`,
+                    '_blank'
+                  );
+                }}
+              >
+                <Navigation className="mr-2 h-4 w-4" />
+                Navigation
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  window.open(
+                    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customer.address)}`,
+                    '_blank'
+                  );
+                }}
+              >
+                <Map className="mr-2 h-4 w-4" />
+                Karte
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="secondary"
                 onClick={() => {
                   toast.success(`Rufe ${customer.companyName} an...`);
                 }}
@@ -206,7 +245,7 @@ function CustomerInfoSheet({
                 <Phone className="mr-2 h-4 w-4" />
                 Anrufen
               </Button>
-              <Button variant="outline" onClick={() => toast.info('Details werden geöffnet...')}>
+              <Button variant="secondary" onClick={() => toast.info('Details werden geöffnet...')}>
                 Details anzeigen
               </Button>
             </div>
@@ -319,6 +358,13 @@ function RoutePlanningSheet({
         className="h-[80vh] p-0 border-0 rounded-t-xl"
         onInteractOutside={(e) => e.preventDefault()}
       >
+        <div className="sr-only">
+           <SheetTitle>Routenplanung</SheetTitle>
+           <SheetDescription>
+             Verwalten Sie Ihre Routenstopps und starten Sie die Navigation
+           </SheetDescription>
+        </div>
+
         {/* Handle Bar */}
         <div className="flex justify-center py-3">
           <div className="w-12 h-1 bg-muted-foreground/20 rounded-full" />
@@ -486,17 +532,41 @@ export function MapRoutePlanner() {
 
   // Handle start navigation
   const handleStartNavigation = () => {
-    const firstCustomerStop = routeStops.find((s) => s.type === 'customer');
-    if (firstCustomerStop) {
-      toast.success(`Navigation zu ${firstCustomerStop.location?.companyName} wird gestartet...`, {
-        description: 'Google Maps wird geöffnet',
-        action: {
-          label: 'Abbrechen',
-          onClick: () => {},
-        },
-      });
-      // In real implementation, open native maps app
+    const customerStops = routeStops.filter((s) => s.type === 'customer');
+    
+    if (customerStops.length === 0) {
+      toast.error('Keine Ziele in der Route');
+      return;
     }
+
+    const firstStop = customerStops[0];
+    const destination = encodeURIComponent(firstStop.location?.address || '');
+    
+    // Create waypoints for intermediate stops if there are more than 1 customer
+    let waypoints = '';
+    if (customerStops.length > 1) {
+      const intermediateStops = customerStops.slice(0, -1);
+      const lastStop = customerStops[customerStops.length - 1];
+      
+      const waypointAddresses = intermediateStops.map(s => encodeURIComponent(s.location?.address || '')).join('|');
+      waypoints = `&waypoints=${waypointAddresses}`;
+      
+      // Update destination to be the last stop
+      const finalDestination = encodeURIComponent(lastStop.location?.address || '');
+      
+      window.open(
+        `https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=${finalDestination}${waypoints}`,
+        '_blank'
+      );
+    } else {
+      // Single destination
+      window.open(
+        `https://www.google.com/maps/dir/?api=1&destination=${destination}`,
+        '_blank'
+      );
+    }
+
+    toast.success('Navigation wird geöffnet');
   };
 
   // Handle check-in
@@ -592,105 +662,12 @@ export function MapRoutePlanner() {
       <div className="flex-1 relative overflow-hidden">
         {viewMode === 'map' ? (
           // Map View
-          <div className="h-full w-full bg-muted/30 relative">
-            {/* Mock Map Container */}
-            <div className="h-full w-full flex items-center justify-center">
-              <div className="text-center">
-                <Map className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="mb-2">Kartenansicht</p>
-                <p className="text-muted-foreground">
-                  Interaktive Karte mit {filteredCustomers.length} Kundenmarkierungen
-                </p>
-              </div>
-            </div>
-
-            {/* Current Location Indicator */}
-            <div className="absolute top-4 left-4 bg-blue-600 text-white h-4 w-4 rounded-full animate-pulse" />
-
-            {/* Compass */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="absolute top-4 right-4 h-10 w-10 p-0 bg-background"
-            >
-              <Compass className="h-5 w-5" />
-            </Button>
-
-            {/* Zoom Controls */}
-            <div className="absolute right-4 top-20 space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 w-10 p-0 bg-background"
-              >
-                <ZoomIn className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-10 w-10 p-0 bg-background"
-              >
-                <ZoomOut className="h-5 w-5" />
-              </Button>
-            </div>
-
-            {/* Layers Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="absolute bottom-24 right-4 h-10 w-10 p-0 bg-background"
-              onClick={() => setShowLayers(!showLayers)}
-            >
-              <Layers className="h-5 w-5" />
-            </Button>
-
-            {/* Layers Menu */}
-            {showLayers && (
-              <Card className="absolute bottom-36 right-4 w-56">
-                <CardContent className="p-3 space-y-2">
-                  <p className="text-muted-foreground mb-2">Ebenen</p>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" defaultChecked />
-                    <span>Kunden</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" defaultChecked />
-                    <span>Standorte</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" defaultChecked={showTodayRoute} />
-                    <span>Heutige Route</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" />
-                    <span>Verkehr</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" />
-                    <span>Satellit</span>
-                  </label>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Customer Markers Preview */}
-            {filteredCustomers.slice(0, 3).map((customer, index) => (
-              <Button
-                key={customer.id}
-                variant="outline"
-                size="sm"
-                className={`absolute h-8 w-8 p-0 rounded-full ${getMarkerColor(
-                  customer.status
-                )}`}
-                style={{
-                  left: `${30 + index * 15}%`,
-                  top: `${40 + index * 10}%`,
-                }}
-                onClick={() => handleMarkerClick(customer)}
-              >
-                <Building2 className="h-4 w-4" />
-              </Button>
-            ))}
+          <div className="h-full w-full relative">
+            <GoogleMapsView
+              customers={filteredCustomers}
+              routeStops={routeStops}
+              onMarkerClick={handleMarkerClick}
+            />
           </div>
         ) : (
           // List View
@@ -788,45 +765,29 @@ export function MapRoutePlanner() {
 // Demo Component
 export function MapRoutePlannerDemo() {
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="mb-4">Karten & Routenplaner (Mobile)</h2>
-          <p className="text-muted-foreground mb-6">
-            Mobile PWA-Komponente für GPS-gestützte Routenplanung mit Multi-Stopp-Navigation
-            und Kunden-Check-in
+    <div className="flex flex-col h-[calc(100vh-140px)] gap-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Tourenplanung</h2>
+          <p className="text-muted-foreground">
+            Planen und optimieren Sie Ihre vertrieblichen Außendiensttouren.
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+           <Badge variant="outline" className="bg-background">
+             <MapPin className="mr-1 h-3 w-3" />
+             Gebiet: Bayern Süd
+           </Badge>
+           <Badge variant="outline" className="bg-background">
+             <Navigation className="mr-1 h-3 w-3" />
+             Fahrzeug: M-XY 1234
+           </Badge>
+        </div>
+      </div>
 
-          <div>
-            <h3 className="mb-3">Features:</h3>
-            <ul className="space-y-2 text-muted-foreground">
-              <li>• Vollbild-Kartenansicht (Google Maps/Leaflet Integration)</li>
-              <li>• GPS-Tracking mit aktuellem Standort (blauer Punkt)</li>
-              <li>• Kundenmarkierungen mit Farbcodierung (Blau/Grün/Rot)</li>
-              <li>• Bottom Sheet für Kundeninformationen</li>
-              <li>• Multi-Stopp-Routenplanung mit Drag & Drop</li>
-              <li>• Routenoptimierung (kürzeste Strecke)</li>
-              <li>• Navigation zu Google Maps/Apple Maps</li>
-              <li>• Heutige Route mit Terminen</li>
-              <li>• Check-in-Feature bei Kundenbesuchen</li>
-              <li>• Filter: Alle / Heute / Überfällig / Opportunities</li>
-              <li>• Such-Funktion nach Kunde oder Adresse</li>
-              <li>• Karten-/Listenansicht Toggle</li>
-              <li>• Ebenen-Steuerung (Kunden, Standorte, Route, Verkehr, Satellit)</li>
-              <li>• Zoom-Steuerung & Kompass</li>
-              <li>• Entfernungsberechnung</li>
-              <li>• Route teilen & speichern</li>
-              <li>• Offline-Unterstützung Hinweis</li>
-            </ul>
-          </div>
-
-          <Separator className="my-6" />
-
-          <div className="max-w-sm mx-auto border border-border rounded-lg overflow-hidden">
-            <MapRoutePlanner />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex-1 border border-border rounded-lg overflow-hidden shadow-sm">
+        <MapRoutePlanner />
+      </div>
     </div>
   );
 }

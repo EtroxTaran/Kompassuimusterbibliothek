@@ -890,6 +890,10 @@ function LoadingDialog() {
       </Button>
       <Dialog open={loading} onOpenChange={setLoading}>
         <DialogContent className="sm:max-w-[300px]" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+          <DialogHeader className="sr-only">
+            <DialogTitle>Laden</DialogTitle>
+            <DialogDescription>Bitte warten, der Vorgang wird verarbeitet.</DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <p className="text-center">Wird verarbeitet...</p>

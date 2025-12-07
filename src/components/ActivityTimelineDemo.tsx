@@ -7,6 +7,7 @@ import { Input } from './ui/input';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
+import { ActivityFormDialog } from './ActivityProtocolFormDemo';
 import {
   Select,
   SelectContent,
@@ -44,10 +45,10 @@ import {
 } from 'lucide-react';
 
 // Activity type
-type ActivityType = 'phone' | 'email' | 'meeting' | 'note' | 'task' | 'visit';
+export type ActivityType = 'phone' | 'email' | 'meeting' | 'note' | 'task' | 'visit';
 
 // Activity interface
-interface Activity {
+export interface Activity {
   id: string;
   type: ActivityType;
   title: string;
@@ -65,7 +66,7 @@ interface Activity {
 }
 
 // Activity type config
-const activityTypeConfig: Record<
+export const activityTypeConfig: Record<
   ActivityType,
   { label: string; icon: any; color: string; bgColor: string; borderColor: string }
 > = {
@@ -392,8 +393,8 @@ function ActivityCard({ activity, onEdit, onDelete }: { activity: Activity; onEd
 }
 
 // Full Activity Timeline
-function ActivityTimeline() {
-  const [activities, setActivities] = useState(sampleActivities);
+export function ActivityTimeline({ initialActivities }: { initialActivities?: Activity[] }) {
+  const [activities, setActivities] = useState(initialActivities || sampleActivities);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTypes, setSelectedTypes] = useState<ActivityType[]>([]);
   const [dateFilter, setDateFilter] = useState('7');
@@ -458,10 +459,14 @@ function ActivityTimeline() {
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Aktivität hinzufügen
-          </Button>
+          <ActivityFormDialog 
+            trigger={
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Aktivität hinzufügen
+              </Button>
+            } 
+          />
         </div>
       </div>
 

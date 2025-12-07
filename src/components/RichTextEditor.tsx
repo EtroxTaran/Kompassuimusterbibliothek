@@ -59,7 +59,7 @@ function EditorButton({
             aria-pressed={isActive}
             aria-disabled={disabled}
             className={`h-9 w-9 rounded-md flex items-center justify-center transition-colors ${
-              active
+              isActive
                 ? 'bg-primary text-primary-foreground'
                 : disabled
                   ? 'text-muted-foreground opacity-50 cursor-not-allowed'
@@ -101,7 +101,7 @@ function CharacterCounter({ current, max }: CharacterCounterProps) {
         : 'text-muted-foreground';
 
   return (
-    <div className="border-t bg-white px-4 py-2 text-right">
+    <div className="border-t bg-background border-border px-4 py-2 text-right">
       <span className={`text-xs ${color}`} aria-live="polite" aria-atomic="true">
         {current.toLocaleString('de-DE')} / {max.toLocaleString('de-DE')} Zeichen
       </span>
@@ -615,12 +615,12 @@ export function RichTextEditor({
       )}
 
       <div
-        className={`border rounded-lg bg-white overflow-hidden ${
+        className={`border rounded-lg bg-background border-border overflow-hidden ${
           disabled || locked ? 'bg-muted' : ''
         }`}
       >
         {/* Toolbar */}
-        <div className="h-12 border-b bg-white px-2 py-2 flex items-center">
+        <div className="h-12 border-b border-border bg-background px-2 py-2 flex items-center">
           {toolbar === 'basic' && (
             <BasicToolbar
               activeButtons={activeButtons}

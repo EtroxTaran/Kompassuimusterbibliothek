@@ -54,13 +54,15 @@ import {
   List,
   MoreVertical,
   X,
+  ExternalLink,
+  Navigation,
 } from 'lucide-react';
 
 // Location types
-type LocationType = 'headquarter' | 'branch' | 'warehouse' | 'project' | 'other';
-type LocationStatus = 'active' | 'inactive';
+export type LocationType = 'headquarter' | 'branch' | 'warehouse' | 'project' | 'other';
+export type LocationStatus = 'active' | 'inactive';
 
-interface Location {
+export interface Location {
   id: string;
   name: string;
   type: LocationType;
@@ -83,7 +85,7 @@ interface Location {
 }
 
 // Location type config
-const locationTypeConfig: Record<
+export const locationTypeConfig: Record<
   LocationType,
   { label: string; color: string; bgColor: string; icon: any }
 > = {
@@ -197,7 +199,7 @@ const sampleLocations: Location[] = [
 ];
 
 // Location card component
-function LocationCard({
+export function LocationCard({
   location,
   isSelected,
   onSelect,
@@ -218,7 +220,9 @@ function LocationCard({
   const typeConfig = locationTypeConfig[location.type];
   const TypeIcon = typeConfig.icon;
 
-  const fullAddress = `${location.address.street}, ${location.address.postalCode} ${location.address.city}`;
+  const fullAddress = `${location.address.street}, ${location.address.postalCode} ${location.address.city}, ${location.address.country}`;
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+  const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(fullAddress)}`;
 
   return (
     <Card
@@ -284,16 +288,60 @@ function LocationCard({
 
           <Separator />
 
-          {/* Address */}
-          <div className="flex items-start gap-3">
-            <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
-            <div className="text-sm text-muted-foreground">
-              <p>{location.address.street}</p>
-              <p>
-                {location.address.postalCode} {location.address.city}
-              </p>
-              <p>{location.address.country}</p>
+          {/* Address & Map */}
+          <div className="flex gap-4">
+            <div className="flex items-start gap-3 flex-1">
+              <MapPin className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="text-sm text-muted-foreground">
+                <p>{location.address.street}</p>
+                <p>
+                  {location.address.postalCode} {location.address.city}
+                </p>
+                <p>{location.address.country}</p>
+                <div className="flex flex-col gap-1 mt-2">
+                  <a
+                    href={googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-primary hover:underline text-xs"
+                  >
+                    Auf Karte anzeigen
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                  <a
+                    href={googleMapsDirectionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-primary hover:underline text-xs"
+                  >
+                    Navigation starten
+                    <Navigation className="h-3 w-3" />
+                  </a>
+                </div>
+              </div>
             </div>
+
+            {/* Mini Map Preview */}
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative w-24 h-24 bg-muted/30 rounded-md border border-border overflow-hidden shrink-0 group hover:ring-2 hover:ring-primary/20 transition-all"
+              title="Auf Google Maps öffnen"
+            >
+              {/* Abstract Map Pattern */}
+              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:8px_8px]" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <MapPin className="h-4 w-4 text-primary fill-primary/20" />
+                </div>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-[1px] py-1 px-2 border-t border-border flex items-center justify-center">
+                <span className="text-[10px] font-medium text-foreground truncate">
+                  Karte
+                </span>
+              </div>
+            </a>
           </div>
 
           {/* Primary Contact */}
@@ -442,8 +490,8 @@ function LocationCard({
 }
 
 // Full location list view
-function LocationListView({ userRole = 'GF' }: { userRole?: 'GF' | 'PLAN' | 'ADM' }) {
-  const [locations, setLocations] = useState(sampleLocations);
+export function LocationListView({ userRole = 'GF', initialLocations }: { userRole?: 'GF' | 'PLAN' | 'ADM', initialLocations?: Location[] }) {
+  const [locations, setLocations] = useState(initialLocations || sampleLocations);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [filterStatus, setFilterStatus] = useState<'all' | 'active'>('all');
   const [sortBy, setSortBy] = useState('name');
