@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback } from './ui/avatar';
-import { Progress } from './ui/progress';
 import {
   Select,
   SelectContent,
@@ -19,14 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from './ui/dialog';
 import {
   Tooltip,
   TooltipContent,
@@ -74,51 +65,51 @@ interface Opportunity {
   status: OpportunityStatus;
 }
 
-// Status config
+// Status config using design system tokens
 const statusConfig: Record<
   OpportunityStatus,
   { label: string; color: string; bgColor: string; headerBg: string; icon: any }
 > = {
   new: {
     label: 'Neu',
-    color: 'text-primary',
-    bgColor: 'bg-accent/30',
-    headerBg: 'bg-accent/60',
+    color: 'text-chart-1',
+    bgColor: 'bg-chart-1/10',
+    headerBg: 'bg-chart-1/20',
     icon: Circle,
   },
   qualifying: {
     label: 'Qualifizierung',
-    color: 'text-purple-700',
-    bgColor: 'bg-purple-50',
-    headerBg: 'bg-purple-100',
+    color: 'text-chart-2',
+    bgColor: 'bg-chart-2/10',
+    headerBg: 'bg-chart-2/20',
     icon: Search,
   },
   proposal: {
     label: 'Angebot erstellt',
-    color: 'text-amber-700',
-    bgColor: 'bg-amber-50',
-    headerBg: 'bg-amber-100',
+    color: 'text-chart-3',
+    bgColor: 'bg-chart-3/10',
+    headerBg: 'bg-chart-3/20',
     icon: FileText,
   },
   negotiation: {
     label: 'Verhandlung',
-    color: 'text-orange-700',
-    bgColor: 'bg-orange-50',
-    headerBg: 'bg-orange-100',
+    color: 'text-chart-4',
+    bgColor: 'bg-chart-4/10',
+    headerBg: 'bg-chart-4/20',
     icon: Handshake,
   },
   won: {
     label: 'Gewonnen',
-    color: 'text-green-700',
-    bgColor: 'bg-green-50',
-    headerBg: 'bg-green-100',
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
+    headerBg: 'bg-primary/20',
     icon: CheckCircle2,
   },
   lost: {
     label: 'Verloren',
-    color: 'text-red-700',
-    bgColor: 'bg-red-50',
-    headerBg: 'bg-red-100',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
+    headerBg: 'bg-destructive/20',
     icon: XCircle,
   },
 };
@@ -274,12 +265,12 @@ function isOverdue(dateString: string): boolean {
 function ProbabilityCircle({ probability }: { probability: number }) {
   const color =
     probability >= 80
-      ? 'text-green-600'
+      ? 'text-primary'
       : probability >= 60
-        ? 'text-primary'
+        ? 'text-chart-4'
         : probability >= 30
-          ? 'text-amber-600'
-          : 'text-gray-500';
+          ? 'text-chart-2'
+          : 'text-muted-foreground';
 
   return (
     <div className="relative h-12 w-12">
@@ -291,7 +282,7 @@ function ProbabilityCircle({ probability }: { probability: number }) {
           stroke="currentColor"
           strokeWidth="4"
           fill="none"
-          className="text-gray-200"
+          className="text-muted/20"
         />
         <circle
           cx="24"
@@ -332,7 +323,7 @@ function OpportunityCard({
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`bg-white border border-border rounded-md p-4 cursor-grab active:cursor-grabbing hover:shadow-md hover:border-primary/50 transition-all ${
+      className={`bg-card border border-border rounded-md p-4 cursor-grab active:cursor-grabbing hover:shadow-md hover:border-primary/50 transition-all ${
         isDragging ? 'opacity-50 rotate-2' : ''
       }`}
     >
@@ -370,7 +361,7 @@ function OpportunityCard({
       {/* Expected close date */}
       <div className="flex items-center gap-2 mb-3 text-xs">
         <Calendar className="h-3 w-3 text-muted-foreground" />
-        <span className={overdue ? 'text-red-700 flex items-center gap-1' : 'text-muted-foreground'}>
+        <span className={overdue ? 'text-destructive flex items-center gap-1' : 'text-muted-foreground'}>
           {overdue && <AlertCircle className="h-3 w-3" />}
           Erwartet: {formatDate(opportunity.expectedCloseDate)}
         </span>
@@ -393,12 +384,12 @@ function OpportunityCard({
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-3 border-t">
+      <div className="flex items-center justify-between pt-3 border-t border-border">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
               <Avatar className="h-6 w-6">
-                <AvatarFallback className="text-xs bg-primary/10">
+                <AvatarFallback className="text-xs bg-primary/10 text-primary">
                   {opportunity.owner.initials}
                 </AvatarFallback>
               </Avatar>
@@ -455,7 +446,7 @@ function KanbanColumn({
 
   return (
     <div
-      className={`bg-white rounded-lg border border-border shrink-0 transition-all ${
+      className={`bg-muted/30 rounded-lg border border-border shrink-0 transition-all ${
         isDragOver ? 'ring-2 ring-primary bg-accent/30' : ''
       }`}
       style={{ width: '320px', minHeight: '600px' }}
@@ -464,7 +455,7 @@ function KanbanColumn({
       onDrop={handleDrop}
     >
       {/* Column header */}
-      <div className={`${config.headerBg} rounded-t-lg p-4 border-b`}>
+      <div className={`${config.headerBg} rounded-t-lg p-4 border-b border-border`}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Icon className={`h-5 w-5 ${config.color}`} />
@@ -633,7 +624,7 @@ function OpportunityPipelineView({ userRole = 'GF' }: { userRole?: 'GF' | 'PLAN'
                 <TrendingUp className="h-4 w-4" />
                 Gewichteter Wert
               </div>
-              <h2 className="text-green-700">{formatCurrency(weightedValue)}</h2>
+              <h2 className="text-chart-2">{formatCurrency(weightedValue)}</h2>
               <p className="text-xs text-muted-foreground">Wahrscheinlichkeitsgewichtet</p>
             </div>
           </CardContent>
@@ -701,7 +692,7 @@ function OpportunityPipelineView({ userRole = 'GF' }: { userRole?: 'GF' | 'PLAN'
       </Card>
 
       {/* Kanban Board */}
-      <div className="bg-gray-50 rounded-lg p-6 border">
+      <div className="bg-muted/10 rounded-lg p-6 border border-border">
         <div className="overflow-x-auto">
           <div className="flex gap-4 pb-4" style={{ minWidth: 'fit-content' }}>
             {statuses.map((status) => (
@@ -727,7 +718,7 @@ function SingleColumnDemo() {
     <div className="space-y-4">
       <h4 className="mb-4">Einzelne Kanban-Spalte (Verhandlung)</h4>
 
-      <div className="bg-gray-50 rounded-lg p-6 border inline-block">
+      <div className="bg-muted/10 rounded-lg p-6 border border-border inline-block">
         <KanbanColumn
           status="negotiation"
           opportunities={opportunities}
@@ -849,12 +840,12 @@ export function OpportunityPipelineDemo() {
           <div className="border border-border rounded-lg p-4">
             <h4 className="mb-2">Pipeline-Phasen</h4>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Neu (Blau, Circle)</li>
-              <li>• Qualifizierung (Lila, Search)</li>
-              <li>• Angebot (Amber, FileText)</li>
-              <li>• Verhandlung (Orange, Handshake)</li>
-              <li>• Gewonnen (Grün, CheckCircle2)</li>
-              <li>• Verloren (Rot, XCircle)</li>
+              <li>• Neu (Chart-1, Circle)</li>
+              <li>• Qualifizierung (Chart-2, Search)</li>
+              <li>• Angebot (Chart-3, FileText)</li>
+              <li>• Verhandlung (Chart-4, Handshake)</li>
+              <li>• Gewonnen (Primary, CheckCircle2)</li>
+              <li>• Verloren (Destructive, XCircle)</li>
             </ul>
           </div>
           <div className="border border-border rounded-lg p-4">
@@ -864,45 +855,16 @@ export function OpportunityPipelineDemo() {
               <li>• Count-Badge</li>
               <li>• Gesamtwert (groß)</li>
               <li>• Gewichteter Wert (klein)</li>
-              <li>• + Button, ⋮ Dropdown</li>
+              <li>• Hintergrund passend zur Phase (10% Opacity)</li>
             </ul>
           </div>
           <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Opportunity-Karte</h4>
+            <h4 className="mb-2">Interaktionen</h4>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Drag-Handle (GripVertical)</li>
-              <li>• Kunde (Building2 Icon)</li>
-              <li>• Titel (16px, fett, 2 Zeilen)</li>
-              <li>• Wert (18px, blau, fett)</li>
-              <li>• Wahrscheinlichkeit (Kreis)</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Wahrscheinlichkeit</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Kreisförmige SVG-Anzeige</li>
-              <li>• 0-29%: Grau</li>
-              <li>• 30-59%: Amber</li>
-              <li>• 60-79%: Blau</li>
-              <li>• 80-100%: Grün</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Drag & Drop</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Cursor: grab → grabbing</li>
-              <li>• Dragging: opacity 0.5, rotate 2°</li>
-              <li>• Drop target: Ring + Hintergrund</li>
-              <li>• Toast bei Statusänderung</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Pipeline-KPIs</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Gesamtwert (alle)</li>
-              <li>• Gewichteter Wert (prob.)</li>
-              <li>• Ø Wahrscheinlichkeit</li>
-              <li>• Anzahl Opportunities</li>
+              <li>• Drag & Drop zwischen Spalten</li>
+              <li>• Hover-Effekte auf Karten</li>
+              <li>• Dropdown für Spalten-Aktionen</li>
+              <li>• Click auf Karte öffnet Details</li>
             </ul>
           </div>
         </div>

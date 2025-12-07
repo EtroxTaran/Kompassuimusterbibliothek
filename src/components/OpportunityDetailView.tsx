@@ -397,8 +397,8 @@ function OpportunityDetailView({
             <Card className="border-2 border-primary/20">
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between mb-2">
-                  <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-950/20 flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-green-600" />
+                  <div className="h-12 w-12 rounded-full bg-chart-1/20 flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-chart-1" />
                   </div>
                 </div>
                 <p className="text-muted-foreground mb-1">Wahrscheinlichkeit</p>
@@ -415,8 +415,8 @@ function OpportunityDetailView({
             <Card className="border-2 border-primary/20">
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between mb-2">
-                  <div className="h-12 w-12 rounded-full bg-amber-100 dark:bg-amber-950/20 flex items-center justify-center">
-                    <Info className="h-6 w-6 text-amber-600" />
+                  <div className="h-12 w-12 rounded-full bg-chart-2/20 flex items-center justify-center">
+                    <Info className="h-6 w-6 text-chart-2" />
                   </div>
                 </div>
                 <p className="text-muted-foreground mb-1">Gewichteter Wert</p>
@@ -460,7 +460,7 @@ function OpportunityDetailView({
                                 isPast
                                   ? 'bg-primary border-primary text-primary-foreground'
                                   : isCurrent
-                                  ? 'bg-amber-500 border-amber-500 text-white'
+                                  ? 'bg-secondary border-secondary text-secondary-foreground'
                                   : 'bg-background border-muted-foreground/30 text-muted-foreground'
                               }`}
                             >
@@ -506,7 +506,7 @@ function OpportunityDetailView({
                               isPast
                                 ? 'bg-primary border-primary text-primary-foreground'
                                 : isCurrent
-                                ? 'bg-amber-500 border-amber-500 text-white'
+                                ? 'bg-secondary border-secondary text-secondary-foreground'
                                 : 'bg-background border-muted-foreground/30 text-muted-foreground'
                             }`}
                           >
@@ -585,10 +585,10 @@ function OpportunityDetailView({
 
             {/* Related Project */}
             {opportunity.projectCode && (
-              <Card className="border-2 border-green-200 dark:border-green-900">
+              <Card className="border-2 border-chart-1/30">
                 <CardHeader>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <CheckCircle className="h-5 w-5 text-chart-1" />
                     <CardTitle>Zugehöriges Projekt</CardTitle>
                   </div>
                   <CardDescription>

@@ -92,8 +92,24 @@ import { DataImportExportDemo } from './components/DataImportExport';
 // Figma Import Template
 import { FigmaImportTemplateDemo } from './components/FigmaImportTemplate';
 
+import { KompassApp } from './components/KompassApp';
+import { Button } from './components/ui/button'; // Ensure Button is imported
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('error-states');
+  const [activeTab, setActiveTab] = useState('full-app-demo');
+
+  if (activeTab === 'full-app-demo') {
+    return (
+      <ThemeProvider defaultTheme="system" storageKey="kompass-ui-theme">
+        <KompassApp />
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button onClick={() => setActiveTab('error-states')} variant="outline" className="shadow-lg bg-background">
+            Zurück zur Muster-Bibliothek
+          </Button>
+        </div>
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider defaultTheme="system" storageKey="kompass-ui-theme">
@@ -207,6 +223,10 @@ export default function App() {
                     <SelectItem value="plan-dashboard">PLAN Dashboard (Planung)</SelectItem>
                     <SelectItem value="task-dashboard">Aufgaben-Dashboard</SelectItem>
                     <SelectItem value="calendar-view">Kalenderansicht</SelectItem>
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>APPLIKATION</SelectLabel>
+                    <SelectItem value="full-app-demo">Vollständige CRM App</SelectItem>
                   </SelectGroup>
                   <SelectGroup>
                     <SelectLabel>OVERLAYS & DIALOGE</SelectLabel>

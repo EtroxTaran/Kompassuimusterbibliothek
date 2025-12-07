@@ -4,9 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Checkbox } from './ui/checkbox';
 import { Separator } from './ui/separator';
-import { toast } from 'sonner@2.0.3';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './ui/table';
 import {
   Building2,
   ShoppingCart,
@@ -19,24 +25,7 @@ import {
   Clock,
   AlertTriangle,
   Phone,
-  Mail,
-  MessageSquare,
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  DollarSign,
-  Users,
-  MapPin,
-  Award,
-  Ban,
-  Search,
-  Filter,
-  Download,
-  Upload,
-  MoreVertical,
   ChevronRight,
-  CheckCircle,
-  XCircle,
 } from 'lucide-react';
 
 // Types
@@ -283,26 +272,26 @@ export function formatCurrency(amount: number): string {
 }
 
 export function getPOStatusBadge(status: POStatus) {
-  const badges: Record<POStatus, { label: string; variant: string }> = {
-    draft: { label: 'Entwurf', variant: 'bg-gray-100 text-gray-800' },
-    pending_approval: { label: 'Freigabe ausstehend', variant: 'bg-amber-100 text-amber-800' },
-    approved: { label: 'Genehmigt', variant: 'bg-blue-100 text-blue-800' },
-    sent: { label: 'Gesendet', variant: 'bg-blue-100 text-blue-800' },
-    confirmed: { label: 'Bestätigt', variant: 'bg-green-100 text-green-800' },
-    in_transit: { label: 'In Lieferung', variant: 'bg-blue-100 text-blue-800' },
-    delayed: { label: 'Verspätet', variant: 'bg-red-100 text-red-800' },
-    delivered: { label: 'Geliefert', variant: 'bg-green-100 text-green-800' },
+  const badges: Record<POStatus, { label: string; className: string }> = {
+    draft: { label: 'Entwurf', className: 'bg-muted text-muted-foreground' },
+    pending_approval: { label: 'Freigabe ausstehend', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-400' },
+    approved: { label: 'Genehmigt', className: 'bg-primary/20 text-primary' },
+    sent: { label: 'Gesendet', className: 'bg-primary/20 text-primary' },
+    confirmed: { label: 'Bestätigt', className: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400' },
+    in_transit: { label: 'In Lieferung', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-400' },
+    delayed: { label: 'Verspätet', className: 'bg-destructive/20 text-destructive' },
+    delivered: { label: 'Geliefert', className: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400' },
   };
   return badges[status];
 }
 
 export function getProjectStatusBadge(status: ProjectStatus) {
-  const badges: Record<ProjectStatus, { label: string; variant: string }> = {
-    planned: { label: 'Geplant', variant: 'bg-gray-100 text-gray-800' },
-    confirmed: { label: 'Bestätigt', variant: 'bg-blue-100 text-blue-800' },
-    in_progress: { label: 'In Arbeit', variant: 'bg-blue-100 text-blue-800' },
-    delayed: { label: 'Verzögert', variant: 'bg-red-100 text-red-800' },
-    completed: { label: 'Abgeschlossen', variant: 'bg-green-100 text-green-800' },
+  const badges: Record<ProjectStatus, { label: string; className: string }> = {
+    planned: { label: 'Geplant', className: 'bg-muted text-muted-foreground' },
+    confirmed: { label: 'Bestätigt', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-400' },
+    in_progress: { label: 'In Arbeit', className: 'bg-primary/20 text-primary' },
+    delayed: { label: 'Verzögert', className: 'bg-destructive/20 text-destructive' },
+    completed: { label: 'Abgeschlossen', className: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400' },
   };
   return badges[status];
 }
@@ -315,18 +304,18 @@ export function KPICards({ data }: { data: KPIData }) {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Building2 className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <Building2 className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">Aktive Lieferanten</p>
-              <p className="text-blue-600" style={{ fontSize: '2rem', fontWeight: 'var(--font-weight-bold)' }}>
+              <p className="text-2xl font-bold text-foreground">
                 {data.activeSuppliers}
               </p>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-green-600">Top-bewertet: {data.topRated} mit {'>'}4★</span>
+                <span className="text-xs text-primary font-medium">Top-bewertet: {data.topRated} mit {'>'}4★</span>
                 {data.pendingApproval > 0 && (
-                  <Badge className="bg-amber-100 text-amber-800 text-xs">
+                  <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400 text-xs">
                     {data.pendingApproval} Freigabe
                   </Badge>
                 )}
@@ -340,17 +329,17 @@ export function KPICards({ data }: { data: KPIData }) {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-100 rounded-lg">
-              <ShoppingCart className="h-6 w-6 text-amber-600" />
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+              <ShoppingCart className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">Offene Bestellungen</p>
-              <p className="text-amber-600" style={{ fontSize: '2rem', fontWeight: 'var(--font-weight-bold)' }}>
+              <p className="text-2xl font-bold text-foreground">
                 {data.openPOs}
               </p>
               <div className="space-y-1 mt-1">
                 <p className="text-xs text-muted-foreground">Wert: {formatCurrency(data.poValue)}</p>
-                <Badge className="bg-orange-100 text-orange-800 text-xs">
+                <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400 text-xs">
                   {data.dueThisWeek} fällig diese Woche
                 </Badge>
               </div>
@@ -363,18 +352,18 @@ export function KPICards({ data }: { data: KPIData }) {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Truck className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <Truck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">Lieferungen (heute)</p>
-              <p className="text-blue-600" style={{ fontSize: '2rem', fontWeight: 'var(--font-weight-bold)' }}>
+              <p className="text-2xl font-bold text-foreground">
                 {data.todayDeliveries}
               </p>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-green-600">Erfasst: {data.recorded}/{data.todayDeliveries}</span>
+                <span className="text-xs text-primary font-medium">Erfasst: {data.recorded}/{data.todayDeliveries}</span>
                 {data.delayed > 0 && (
-                  <Badge className="bg-red-100 text-red-800 text-xs">{data.delayed} verspätet</Badge>
+                  <Badge variant="destructive" className="text-xs">{data.delayed} verspätet</Badge>
                 )}
               </div>
             </div>
@@ -386,18 +375,18 @@ export function KPICards({ data }: { data: KPIData }) {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-100 rounded-lg">
-              <FileText className="h-6 w-6 text-amber-600" />
+            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+              <FileText className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">Lieferantenrechnungen</p>
-              <p className="text-amber-600" style={{ fontSize: '2rem', fontWeight: 'var(--font-weight-bold)' }}>
+              <p className="text-2xl font-bold text-foreground">
                 {data.pendingInvoices}
               </p>
               <div className="space-y-1 mt-1">
                 <p className="text-xs text-muted-foreground">Wert: {formatCurrency(data.invoiceValue)}</p>
                 {data.requiresApproval > 0 && (
-                  <Badge className="bg-red-100 text-red-800 text-xs">
+                  <Badge variant="destructive" className="text-xs">
                     {data.requiresApproval} {'>'} €1k Freigabe
                   </Badge>
                 )}
@@ -411,17 +400,17 @@ export function KPICards({ data }: { data: KPIData }) {
       <Card className="opacity-60">
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Package className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <Package className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">Lagerbestand [Phase 2]</p>
-              <p className="text-blue-600" style={{ fontSize: '2rem', fontWeight: 'var(--font-weight-bold)' }}>
+              <p className="text-2xl font-bold text-foreground">
                 €45k
               </p>
               <div className="space-y-1 mt-1">
                 <p className="text-xs text-muted-foreground">142 Positionen</p>
-                <Badge className="bg-amber-100 text-amber-800 text-xs">8 unter Mindest</Badge>
+                <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400 text-xs">8 unter Mindest</Badge>
               </div>
             </div>
           </div>
@@ -432,13 +421,13 @@ export function KPICards({ data }: { data: KPIData }) {
       <Card>
         <CardContent className="p-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Star className="h-6 w-6 text-green-600" />
+            <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <Star className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="flex-1">
               <p className="text-sm text-muted-foreground">Lieferanten-Performance</p>
               <div className="flex items-center gap-1">
-                <p className="text-green-600" style={{ fontSize: '2rem', fontWeight: 'var(--font-weight-bold)' }}>
+                <p className="text-2xl font-bold text-foreground">
                   {data.averageRating.toFixed(1)}
                 </p>
                 <div className="flex">
@@ -448,7 +437,7 @@ export function KPICards({ data }: { data: KPIData }) {
                       className={`h-5 w-5 ${
                         i < Math.floor(data.averageRating)
                           ? 'fill-amber-400 text-amber-400'
-                          : 'text-gray-300'
+                          : 'text-muted'
                       }`}
                     />
                   ))}
@@ -482,23 +471,23 @@ export function TodaysDeliveries({ deliveries }: { deliveries: Delivery[] }) {
             key={delivery.id}
             className={`p-4 border rounded-lg ${
               delivery.status === 'recorded'
-                ? 'bg-green-50 border-green-200'
+                ? 'bg-green-50/50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
                 : delivery.status === 'delayed'
-                ? 'bg-red-50 border-red-200'
-                : 'bg-blue-50 border-blue-200'
+                ? 'bg-destructive/10 border-destructive/20'
+                : 'bg-card border-border'
             }`}
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-white">
-                  <span style={{ fontWeight: 'var(--font-weight-bold)' }}>{delivery.time}</span>
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-background border border-border">
+                  <span className="font-bold text-foreground">{delivery.time}</span>
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    {delivery.status === 'recorded' && <Check className="h-4 w-4 text-green-600" />}
-                    {delivery.status === 'expected' && <Clock className="h-4 w-4 text-blue-600" />}
-                    {delivery.status === 'delayed' && <AlertTriangle className="h-4 w-4 text-red-600" />}
-                    <span style={{ fontWeight: 'var(--font-weight-semi-bold)' }}>
+                    {delivery.status === 'recorded' && <Check className="h-4 w-4 text-green-600 dark:text-green-400" />}
+                    {delivery.status === 'expected' && <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
+                    {delivery.status === 'delayed' && <AlertTriangle className="h-4 w-4 text-destructive" />}
+                    <span className="font-semibold text-foreground">
                       {delivery.supplier}
                     </span>
                     <span className="text-muted-foreground">•</span>
@@ -511,20 +500,20 @@ export function TodaysDeliveries({ deliveries }: { deliveries: Delivery[] }) {
               </div>
               <div className="text-right">
                 {delivery.status === 'recorded' && (
-                  <Badge className="bg-green-100 text-green-800">
+                  <Badge className="bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400">
                     Erfasst: {delivery.actualTime}
                   </Badge>
                 )}
                 {delivery.status === 'expected' && (
-                  <Badge className="bg-blue-100 text-blue-800">ETA: {delivery.eta}</Badge>
+                  <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">ETA: {delivery.eta}</Badge>
                 )}
                 {delivery.status === 'delayed' && (
-                  <Badge className="bg-red-100 text-red-800">VERSPÄTET!</Badge>
+                  <Badge variant="destructive">VERSPÄTET!</Badge>
                 )}
               </div>
             </div>
             {delivery.status === 'delayed' && delivery.delay && (
-              <p className="text-sm text-red-600 mt-2">{delivery.delay}</p>
+              <p className="text-sm text-destructive mt-2">{delivery.delay}</p>
             )}
             <div className="flex gap-2 mt-3">
               {delivery.status === 'expected' && (
@@ -566,60 +555,58 @@ export function OpenPurchaseOrders({ orders }: { orders: PurchaseOrder[] }) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b">
-              <tr>
-                <th className="text-left p-3">PO-Nr.</th>
-                <th className="text-left p-3">Projekt</th>
-                <th className="text-left p-3">Lieferant</th>
-                <th className="text-right p-3">Wert</th>
-                <th className="text-left p-3">Benötigt bis</th>
-                <th className="text-left p-3">Status</th>
-                <th className="text-left p-3">Aktion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => {
-                const statusBadge = getPOStatusBadge(order.status);
-                return (
-                  <tr key={order.id} className="border-b hover:bg-muted/50">
-                    <td className="p-3">
-                      <button className="text-blue-600 hover:underline">{order.poNumber}</button>
-                    </td>
-                    <td className="p-3">
-                      <button className="text-blue-600 hover:underline">{order.project}</button>
-                    </td>
-                    <td className="p-3">{order.supplier}</td>
-                    <td className="p-3 text-right">{formatCurrency(order.value)}</td>
-                    <td className="p-3 text-sm">{order.requiredBy}</td>
-                    <td className="p-3">
-                      <Badge className={statusBadge.variant}>{statusBadge.label}</Badge>
-                    </td>
-                    <td className="p-3">
-                      {order.status === 'in_transit' && (
-                        <Button variant="outline" size="sm">
-                          <Truck className="h-4 w-4 mr-1" />
-                          Lieferung
-                        </Button>
-                      )}
-                      {order.status === 'confirmed' && (
-                        <Button variant="outline" size="sm">
-                          Verfolgen
-                        </Button>
-                      )}
-                      {order.status === 'sent' && (
-                        <Button variant="outline" size="sm">
-                          Nachfassen
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>PO-Nr.</TableHead>
+              <TableHead>Projekt</TableHead>
+              <TableHead>Lieferant</TableHead>
+              <TableHead className="text-right">Wert</TableHead>
+              <TableHead>Benötigt bis</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Aktion</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => {
+              const statusBadge = getPOStatusBadge(order.status);
+              return (
+                <TableRow key={order.id}>
+                  <TableCell>
+                    <button className="text-primary hover:underline font-medium">{order.poNumber}</button>
+                  </TableCell>
+                  <TableCell>
+                    <button className="text-primary hover:underline">{order.project}</button>
+                  </TableCell>
+                  <TableCell>{order.supplier}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(order.value)}</TableCell>
+                  <TableCell className="text-sm">{order.requiredBy}</TableCell>
+                  <TableCell>
+                    <Badge className={statusBadge.className} variant="outline">{statusBadge.label}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {order.status === 'in_transit' && (
+                      <Button variant="outline" size="sm">
+                        <Truck className="h-4 w-4 mr-1" />
+                        Lieferung
+                      </Button>
+                    )}
+                    {order.status === 'confirmed' && (
+                      <Button variant="outline" size="sm">
+                        Verfolgen
+                      </Button>
+                    )}
+                    {order.status === 'sent' && (
+                      <Button variant="outline" size="sm">
+                        Nachfassen
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );
@@ -637,18 +624,20 @@ export function PendingInvoices({ invoices }: { invoices: SupplierInvoice[] }) {
           <div
             key={invoice.id}
             className={`p-4 border rounded-lg ${
-              invoice.urgent ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'
+              invoice.urgent 
+                ? 'bg-destructive/5 border-destructive/20' 
+                : 'bg-amber-50/50 border-amber-200 dark:bg-amber-900/10 dark:border-amber-800'
             }`}
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex items-center gap-2">
                 {invoice.urgent ? (
-                  <AlertTriangle className="h-5 w-5 text-red-600" />
+                  <AlertTriangle className="h-5 w-5 text-destructive" />
                 ) : (
-                  <Clock className="h-5 w-5 text-amber-600" />
+                  <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 )}
                 <div>
-                  <p style={{ fontWeight: 'var(--font-weight-semi-bold)' }}>
+                  <p className="font-semibold">
                     Rechnung {invoice.invoiceNumber} • {invoice.supplier}
                   </p>
                   <p className="text-sm text-muted-foreground">
@@ -660,7 +649,7 @@ export function PendingInvoices({ invoices }: { invoices: SupplierInvoice[] }) {
             </div>
             <div className="flex items-center justify-between mt-3">
               <p className="text-sm">
-                Wartet auf: <span style={{ fontWeight: 'var(--font-weight-medium)' }}>{invoice.waitingFor}</span>{' '}
+                Wartet auf: <span className="font-medium">{invoice.waitingFor}</span>{' '}
                 (seit {invoice.daysWaiting} Tagen)
               </p>
               <div className="flex gap-2">
@@ -668,7 +657,7 @@ export function PendingInvoices({ invoices }: { invoices: SupplierInvoice[] }) {
                   Details
                 </Button>
                 {invoice.urgent ? (
-                  <Button size="sm" className="bg-red-600 hover:bg-red-700">
+                  <Button size="sm" variant="destructive">
                     GF benachrichtigen
                   </Button>
                 ) : (
@@ -704,21 +693,21 @@ export function SupplierOverview({ suppliers }: { suppliers: SupplierCard[] }) {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {suppliers.map((supplier) => (
-            <div key={supplier.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div key={supplier.id} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
               <div className="flex items-center gap-2 mb-2">
-                <Building2 className="h-5 w-5 text-blue-600" />
-                <span style={{ fontWeight: 'var(--font-weight-semi-bold)' }}>{supplier.name}</span>
+                <Building2 className="h-5 w-5 text-primary" />
+                <span className="font-semibold">{supplier.name}</span>
               </div>
               <div className="flex items-center gap-1 mb-2">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
                     className={`h-4 w-4 ${
-                      i < Math.floor(supplier.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+                      i < Math.floor(supplier.rating) ? 'fill-amber-400 text-amber-400' : 'text-muted'
                     }`}
                   />
                 ))}
-                <span className="ml-1 text-sm">{supplier.rating.toFixed(1)}</span>
+                <span className="ml-1 text-sm font-medium">{supplier.rating.toFixed(1)}</span>
               </div>
               <div className="space-y-1 text-sm text-muted-foreground mb-3">
                 <p>{supplier.activeProjects} aktive Projekte</p>
@@ -748,286 +737,118 @@ export function ProjectAssignments({ assignments }: { assignments: ProjectAssign
         <CardTitle>Projekt-Zuweisungen (Subunternehmer)</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b">
-              <tr>
-                <th className="text-left p-3">Projekt</th>
-                <th className="text-left p-3">Lieferant</th>
-                <th className="text-left p-3">Arbeitspaket</th>
-                <th className="text-left p-3">Zeitraum</th>
-                <th className="text-left p-3">Status</th>
-                <th className="text-left p-3">Budget</th>
-                <th className="text-left p-3">Aktion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {assignments.map((assignment) => {
-                const statusBadge = getProjectStatusBadge(assignment.status);
-                return (
-                  <tr key={assignment.id} className="border-b hover:bg-muted/50">
-                    <td className="p-3">
-                      <button className="text-blue-600 hover:underline">{assignment.project}</button>
-                    </td>
-                    <td className="p-3">{assignment.supplier}</td>
-                    <td className="p-3 text-sm">{assignment.workPackage}</td>
-                    <td className="p-3 text-sm">{assignment.timeframe}</td>
-                    <td className="p-3">
-                      <div className="space-y-1">
-                        <Badge className={statusBadge.variant}>{statusBadge.label}</Badge>
-                        {assignment.progress && (
-                          <div className="flex items-center gap-2">
-                            <Progress value={assignment.progress} className="w-16 h-2" />
-                            <span className="text-xs">{assignment.progress}%</span>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      {assignment.budgetStatus === 'ok' && (
-                        <Badge className="bg-green-100 text-green-800">
-                          <Check className="h-3 w-3 mr-1" />
-                          Im Rahmen
-                        </Badge>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Projekt</TableHead>
+              <TableHead>Lieferant</TableHead>
+              <TableHead>Arbeitspaket</TableHead>
+              <TableHead>Zeitraum</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Budget</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {assignments.map((assignment) => {
+              const statusBadge = getProjectStatusBadge(assignment.status);
+              return (
+                <TableRow key={assignment.id}>
+                  <TableCell>
+                    <button className="text-primary hover:underline font-medium">{assignment.project}</button>
+                  </TableCell>
+                  <TableCell>{assignment.supplier}</TableCell>
+                  <TableCell className="text-sm">{assignment.workPackage}</TableCell>
+                  <TableCell className="text-sm">{assignment.timeframe}</TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <Badge className={statusBadge.className} variant="outline">{statusBadge.label}</Badge>
+                      {assignment.progress && (
+                        <div className="flex items-center gap-2">
+                          <Progress value={assignment.progress} className="w-16 h-2" />
+                          <span className="text-xs">{assignment.progress}%</span>
+                        </div>
                       )}
-                      {assignment.budgetStatus === 'warning' && (
-                        <Badge className="bg-amber-100 text-amber-800">
-                          <AlertTriangle className="h-3 w-3 mr-1" />
-                          +{assignment.budgetVariance}%
-                        </Badge>
-                      )}
-                      {assignment.budgetStatus === 'critical' && (
-                        <Badge className="bg-red-100 text-red-800">
-                          <AlertTriangle className="h-3 w-3 mr-1" />
-                          +{assignment.budgetVariance}%
-                        </Badge>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {assignment.status === 'in_progress' && (
-                        <Button variant="outline" size="sm">
-                          Verfolgen
-                        </Button>
-                      )}
-                      {assignment.status === 'planned' && (
-                        <Button size="sm">Beauftragen</Button>
-                      )}
-                      {assignment.status === 'delayed' && (
-                        <Button variant="outline" size="sm" className="text-red-600">
-                          Kontakt
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                     {assignment.budgetStatus === 'ok' && <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">OK</Badge>}
+                     {assignment.budgetStatus === 'warning' && <Badge variant="outline" className="text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-400">Var {assignment.budgetVariance}%</Badge>}
+                     {assignment.budgetStatus === 'critical' && <Badge variant="destructive">CRITICAL</Badge>}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );
 }
 
-// Main INN Dashboard
-export function INNDashboard() {
-  const [activeView, setActiveView] = useState<'overview' | 'suppliers' | 'orders' | 'projects'>('overview');
-
-  const handleRecordDelivery = () => {
-    toast.success('Lieferung erfasst');
-  };
-
-  const handleContactSupplier = () => {
-    toast.info('Lieferant kontaktieren');
-  };
-
-  const handleRequestApproval = () => {
-    toast.success('Freigabeanfrage gesendet');
-  };
+// Main Dashboard Component
+export function INNDashboardDemo() {
+  const [activeTab, setActiveTab] = useState('overview');
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="mb-2">Innendienst & Beschaffung</h1>
-          <p className="text-sm text-muted-foreground">
-            Lieferantenkoordination, Bestellverwaltung und Materialverfolgung
+          <h2 className="text-3xl font-bold tracking-tight">Innendienst Dashboard</h2>
+          <p className="text-muted-foreground">
+            Übersicht über Einkauf, Lieferanten und Logistik
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white">
-              CW
-            </div>
-            <div>
-              <p className="text-sm" style={{ fontWeight: 'var(--font-weight-medium)' }}>
-                Claudia Weber
-              </p>
-              <p className="text-xs text-muted-foreground">INN</p>
-            </div>
-          </div>
+        <div className="flex items-center gap-2">
+           <Button variant="outline">
+             <FileText className="mr-2 h-4 w-4" />
+             Bericht exportieren
+           </Button>
+           <Button>
+             <Plus className="mr-2 h-4 w-4" />
+             Neue Bestellung
+           </Button>
         </div>
       </div>
 
-      {/* View Toggle */}
-      <Tabs value={activeView} onValueChange={(v: any) => setActiveView(v)}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Übersicht</TabsTrigger>
+          <TabsTrigger value="deliveries">Logistik & Lieferungen</TabsTrigger>
+          <TabsTrigger value="purchasing">Einkauf & Rechnungen</TabsTrigger>
           <TabsTrigger value="suppliers">Lieferanten</TabsTrigger>
-          <TabsTrigger value="orders">Bestellungen</TabsTrigger>
-          <TabsTrigger value="projects">Projekte</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6 mt-6">
-          {/* KPI Cards */}
+        <TabsContent value="overview" className="space-y-4">
           <KPICards data={mockKPIData} />
+          
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+            <div className="col-span-4">
+              <TodaysDeliveries deliveries={mockDeliveries} />
+            </div>
+            <div className="col-span-3">
+              <PendingInvoices invoices={mockInvoices} />
+            </div>
+          </div>
 
-          {/* Today's Deliveries */}
-          <TodaysDeliveries deliveries={mockDeliveries} />
-
-          {/* Open Purchase Orders */}
           <OpenPurchaseOrders orders={mockPOs} />
-
-          {/* Pending Invoices */}
-          <PendingInvoices invoices={mockInvoices} />
-
-          {/* Supplier Overview */}
-          <SupplierOverview suppliers={mockSuppliers} />
-
-          {/* Project Assignments */}
-          <ProjectAssignments assignments={mockAssignments} />
         </TabsContent>
 
-        <TabsContent value="suppliers" className="mt-6">
-          <Card>
-            <CardContent className="p-12 text-center">
-              <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="mb-2">Lieferantenverwaltung</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Vollständige Lieferantenliste und -verwaltung
-              </p>
-              <Button>Zur Lieferantenliste</Button>
-            </CardContent>
-          </Card>
+        <TabsContent value="deliveries" className="space-y-4">
+           <div className="grid gap-4 md:grid-cols-1">
+              <TodaysDeliveries deliveries={mockDeliveries} />
+           </div>
+        </TabsContent>
+        
+        <TabsContent value="purchasing" className="space-y-4">
+           <OpenPurchaseOrders orders={mockPOs} />
+           <PendingInvoices invoices={mockInvoices} />
         </TabsContent>
 
-        <TabsContent value="orders" className="mt-6">
-          <Card>
-            <CardContent className="p-12 text-center">
-              <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="mb-2">Bestellverwaltung</h3>
-              <p className="text-sm text-muted-foreground mb-6">Alle Bestellungen und Purchase Orders</p>
-              <Button>Alle Bestellungen anzeigen</Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="projects" className="mt-6">
-          <Card>
-            <CardContent className="p-12 text-center">
-              <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="mb-2">Projektmaterialien</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Material- und Beschaffungsübersicht nach Projekten
-              </p>
-              <Button>Projektübersicht anzeigen</Button>
-            </CardContent>
-          </Card>
+        <TabsContent value="suppliers" className="space-y-4">
+           <SupplierOverview suppliers={mockSuppliers} />
+           <ProjectAssignments assignments={mockAssignments} />
         </TabsContent>
       </Tabs>
-    </div>
-  );
-}
-
-// Demo Component
-export function INNDashboardDemo() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="mb-2">INN Dashboard (Innendienst & Beschaffung)</h2>
-        <p className="text-sm text-muted-foreground">
-          Umfassendes Dashboard für Lieferantenkoordination, Bestellverwaltung, Materialverfolgung und
-          Rechnungsfreigabe
-        </p>
-      </div>
-
-      {/* Main Dashboard */}
-      <INNDashboard />
-
-      {/* Features */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Funktionen</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <div className="flex items-start gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-            <div>
-              <strong>6 KPI-Karten:</strong> Aktive Lieferanten, Offene Bestellungen, Lieferungen, Rechnungen,
-              Lager, Performance
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-            <div>
-              <strong>Heutige Lieferungen:</strong> Timeline-Ansicht mit Status (Erfasst, Erwartet, Verspätet)
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-            <div>
-              <strong>Offene Bestellungen:</strong> Tabelle mit PO-Tracking und Statusverfolgung
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-            <div>
-              <strong>Rechnungsfreigabe:</strong> Alert-Karten für ausstehende Freigaben mit Dringlichkeit
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-            <div>
-              <strong>Lieferanten-Performance:</strong> Top 6 mit Bewertungen und Aktivität
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-            <div>
-              <strong>Projekt-Zuweisungen:</strong> Subunternehmer-Tracking mit Fortschritt und Budget
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-            <div>
-              <strong>4 Ansichten:</strong> Übersicht, Lieferanten, Bestellungen, Projekte
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary mt-2 shrink-0" />
-            <div>
-              <strong>Schnellaktionen:</strong> Lieferung erfassen, Lieferant kontaktieren, Freigabe anfragen
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Mock Data Info */}
-      <Card className="bg-muted">
-        <CardHeader>
-          <CardTitle className="text-sm">Mock-Daten</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>• 24 Aktive Lieferanten (18 top-bewertet, 2 freigabe ausstehend)</p>
-          <p>• 12 Offene Bestellungen (€245k, 3 fällig diese Woche)</p>
-          <p>• 5 Lieferungen heute (3 erfasst, 2 verspätet)</p>
-          <p>• 8 Rechnungen ausstehend (€87,5k, 3 über €1k)</p>
-          <p>• Durchschnittliche Performance: 4.3★ (45 Aufträge)</p>
-          <p>• 3 Lieferanten: Schreinerei Müller (4.8★), Elektro Schmidt (4.2★), Weber (4.0★)</p>
-          <p>• 3 Projekt-Zuweisungen mit verschiedenen Status</p>
-        </CardContent>
-      </Card>
     </div>
   );
 }

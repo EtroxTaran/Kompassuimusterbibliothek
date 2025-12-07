@@ -59,47 +59,48 @@ const statusConfig: Record<
   new: {
     label: 'Neu',
     icon: Circle,
-    color: 'text-primary',
-    bgColor: 'bg-accent/50',
+    color: 'text-chart-1',
+    bgColor: 'bg-chart-1/10',
   },
   qualifying: {
     label: 'Qualifizierung',
     icon: Loader,
-    color: 'text-amber-600',
-    bgColor: 'bg-amber-50 dark:bg-amber-950/20',
+    color: 'text-chart-2',
+    bgColor: 'bg-chart-2/10',
   },
   proposal: {
     label: 'Angebot erstellt',
     icon: FileText,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50 dark:bg-purple-950/20',
+    color: 'text-chart-3',
+    bgColor: 'bg-chart-3/10',
   },
   negotiation: {
     label: 'Verhandlung',
     icon: Handshake,
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-50 dark:bg-orange-950/20',
+    color: 'text-chart-4',
+    bgColor: 'bg-chart-4/10',
   },
   won: {
     label: 'Gewonnen',
     icon: Check,
-    color: 'text-green-600',
-    bgColor: 'bg-green-50 dark:bg-green-950/20',
+    color: 'text-primary',
+    bgColor: 'bg-primary/10',
   },
   lost: {
     label: 'Verloren',
     icon: X,
-    color: 'text-red-600',
-    bgColor: 'bg-red-50 dark:bg-red-950/20',
+    color: 'text-destructive',
+    bgColor: 'bg-destructive/10',
   },
 };
 
 // Add initial status
+// @ts-ignore
 statusConfig['initial'] = {
   label: 'Erstkontakt',
   icon: Circle,
-  color: 'text-primary',
-  bgColor: 'bg-accent/50',
+  color: 'text-chart-1',
+  bgColor: 'bg-chart-1/10',
 };
 
 // Customers
@@ -130,7 +131,7 @@ function formatCurrency(amount: number): string {
 }
 
 // Full Opportunity Form
-function OpportunityForm({
+export function OpportunityFormDemo({
   currentUserRole = 'ADM',
   isEdit = false,
 }: {
@@ -500,18 +501,18 @@ function OpportunityForm({
 
           {/* Warnings */}
           {showHighProbabilityWarning && (
-            <Alert className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-900 dark:text-amber-100">
+            <Alert className="bg-chart-4/10 border-chart-4/20 text-chart-4">
+              <AlertTriangle className="h-4 w-4 text-chart-4" />
+              <AlertDescription className="text-foreground">
                 Hohe Wahrscheinlichkeit bei frühem Status - Status aktualisieren?
               </AlertDescription>
             </Alert>
           )}
 
           {showPastDateWarning && (
-            <Alert className="bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-900 dark:text-amber-100">
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
                 Abschlussdatum liegt in der Vergangenheit
               </AlertDescription>
             </Alert>
@@ -643,7 +644,7 @@ function OpportunityForm({
                   )}
                   {actualValue && estimatedValue && valueDifference !== 0 && (
                     <p
-                      className={`text-sm ${valueDifference > 0 ? 'text-green-600' : 'text-red-600'}`}
+                      className={`text-sm ${valueDifference > 0 ? 'text-primary' : 'text-destructive'}`}
                     >
                       {valueDifference > 0 ? '+' : ''} {formatCurrency(valueDifference)} vs.
                       Schätzung
@@ -754,535 +755,19 @@ function OpportunityForm({
         <DialogFooter className="flex-col sm:flex-row gap-2">
           <div className="flex-1">
             <Button variant="ghost" size="sm">
-              Als Entwurf speichern
+              <Info className="mr-2 h-4 w-4" />
+              Verlauf anzeigen
             </Button>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
-              Abbrechen
-            </Button>
-            <Button onClick={handleSubmit} disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Save className="mr-2 h-4 w-4 animate-pulse" />
-                  Wird gespeichert...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Opportunity speichern
-                </>
-              )}
-            </Button>
-          </div>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
+            Abbrechen
+          </Button>
+          <Button onClick={handleSubmit} disabled={isLoading}>
+            {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+            {isEdit ? 'Speichern' : 'Opportunity erstellen'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-}
-
-// Probability Slider Demo
-function ProbabilitySliderDemo() {
-  const [probability, setProbability] = useState([75]);
-  const [estimatedValue] = useState(125000);
-  const weightedValue = estimatedValue * (probability[0] / 100);
-
-  return (
-    <div className="space-y-4">
-      <h4 className="mb-4">Wahrscheinlichkeits-Slider</h4>
-
-      <Card className="max-w-md">
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-accent/60 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <Label className="text-xs text-muted-foreground">
-                  Erfolgswahrscheinlichkeit
-                </Label>
-              </div>
-            </div>
-
-            <div className="text-center">
-              <div className="text-4xl font-bold text-primary">{probability[0]}%</div>
-            </div>
-
-            <Slider
-              value={probability}
-              onValueChange={setProbability}
-              max={100}
-              step={5}
-              className="w-full"
-            />
-
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>0%</span>
-              <span>25%</span>
-              <span>50%</span>
-              <span>75%</span>
-              <span>100%</span>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Geschätzter Wert:</span>
-                <span className="font-medium">{formatCurrency(estimatedValue)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Wahrscheinlichkeit:</span>
-                <span className="font-medium">{probability[0]}%</span>
-              </div>
-              <Separator />
-              <div className="flex justify-between items-baseline">
-                <span className="font-semibold">Gewichteter Wert:</span>
-                <span className="text-xl font-bold text-primary">
-                  {formatCurrency(weightedValue)}
-                </span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <p className="text-sm text-muted-foreground">
-        Slider in 5%-Schritten, Echtzeit-Berechnung des gewichteten Werts
-      </p>
-    </div>
-  );
-}
-
-// Status Transition Indicator
-function StatusTransitionDemo() {
-  const [currentStatus, setCurrentStatus] = useState<OpportunityStatus>('proposal');
-
-  const statusFlow: OpportunityStatus[] = ['new', 'qualifying', 'proposal', 'negotiation', 'won'];
-
-  const currentIndex = statusFlow.indexOf(currentStatus);
-
-  return (
-    <div className="space-y-4">
-      <h4 className="mb-4">Status-Übergangsanzeige</h4>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Verkaufsprozess-Status</CardTitle>
-          <CardDescription>Aktueller Status: {statusConfig[currentStatus].label}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Status Flow */}
-          <div className="flex items-center justify-between">
-            {statusFlow.map((status, index) => {
-              const config = statusConfig[status];
-              const Icon = config.icon;
-              const isCurrent = status === currentStatus;
-              const isPast = index < currentIndex;
-              const isNext = index === currentIndex + 1;
-
-              return (
-                <div key={status} className="flex items-center">
-                  <div className="flex flex-col items-center gap-2">
-                    <div
-                      className={`h-12 w-12 rounded-full flex items-center justify-center border-2 transition-colors ${
-                        isCurrent
-                          ? `${config.bgColor} ${config.color} border-current`
-                          : isPast
-                            ? 'bg-green-50 dark:bg-green-950/20 text-green-600 border-green-600'
-                            : isNext
-                              ? 'bg-muted text-muted-foreground border-muted-foreground border-dashed'
-                              : 'bg-muted text-muted-foreground border-muted'
-                      }`}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <span
-                      className={`text-xs text-center max-w-[80px] ${
-                        isCurrent ? 'font-semibold' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {config.label}
-                    </span>
-                  </div>
-
-                  {index < statusFlow.length - 1 && (
-                    <div className="flex items-center mx-2">
-                      <ChevronRight
-                        className={`h-5 w-5 ${
-                          index < currentIndex ? 'text-green-600' : 'text-muted-foreground'
-                        }`}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Status Selector */}
-          <div className="space-y-2">
-            <Label>Status ändern (Demo)</Label>
-            <Select value={currentStatus} onValueChange={(val) => setCurrentStatus(val as OpportunityStatus)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(statusConfig)
-                  .filter(([key]) => statusFlow.includes(key as OpportunityStatus))
-                  .map(([key, config]) => {
-                    const Icon = config.icon;
-                    return (
-                      <SelectItem key={key} value={key}>
-                        <div className="flex items-center gap-2">
-                          <Icon className={`h-4 w-4 ${config.color}`} />
-                          {config.label}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      <p className="text-sm text-muted-foreground">
-        Visueller Fortschritt durch den Verkaufsprozess mit Status-Indikatoren
-      </p>
-    </div>
-  );
-}
-
-// Conditional Fields Demo
-function ConditionalFieldsDemo() {
-  const [status, setStatus] = useState<OpportunityStatus>('proposal');
-
-  return (
-    <div className="space-y-4">
-      <h4 className="mb-4">Statusabhängige Felder</h4>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Bedingte Feldanzeige</CardTitle>
-          <CardDescription>Felder erscheinen basierend auf dem Status</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Status Selector */}
-          <div className="space-y-2">
-            <Label>Status auswählen</Label>
-            <Select value={status} onValueChange={(val) => setStatus(val as OpportunityStatus)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="proposal">Angebot erstellt</SelectItem>
-                <SelectItem value="won">Gewonnen</SelectItem>
-                <SelectItem value="lost">Verloren</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Separator />
-
-          {/* Conditional: Won */}
-          {status === 'won' && (
-            <div className="space-y-4 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
-              <div className="flex items-center gap-2 text-green-600">
-                <Check className="h-4 w-4" />
-                <span className="font-semibold">Felder für gewonnene Opportunities</span>
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Tatsächlicher Auftragswert <span className="text-destructive">*</span>
-                </Label>
-                <Input type="number" placeholder="125000" />
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Auftragsdatum <span className="text-destructive">*</span>
-                </Label>
-                <Input type="date" />
-              </div>
-            </div>
-          )}
-
-          {/* Conditional: Lost */}
-          {status === 'lost' && (
-            <div className="space-y-4 p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
-              <div className="flex items-center gap-2 text-red-600">
-                <X className="h-4 w-4" />
-                <span className="font-semibold">Felder für verlorene Opportunities</span>
-              </div>
-
-              <div className="space-y-2">
-                <Label>
-                  Grund für Verlust <span className="text-destructive">*</span>
-                </Label>
-                <Textarea
-                  placeholder="Bitte beschreiben Sie, warum die Opportunity verloren wurde..."
-                  rows={3}
-                />
-                <p className="text-xs text-muted-foreground">Mindestens 10 Zeichen erforderlich</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label>An Wettbewerber verloren</Label>
-                <Input placeholder="Name des Wettbewerbers" />
-              </div>
-            </div>
-          )}
-
-          {/* Default */}
-          {status !== 'won' && status !== 'lost' && (
-            <div className="p-4 bg-muted rounded-lg text-center text-muted-foreground">
-              Wählen Sie "Gewonnen" oder "Verloren", um zusätzliche Felder anzuzeigen
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <p className="text-sm text-muted-foreground">
-        Bei "Gewonnen": Tatsächlicher Wert & Auftragsdatum erforderlich. Bei "Verloren":
-        Verlustgrund erforderlich (min. 10 Zeichen)
-      </p>
-    </div>
-  );
-}
-
-// Value Calculation Demo
-function ValueCalculationDemo() {
-  const [estimatedValue, setEstimatedValue] = useState('125000');
-  const [probability, setProbability] = useState([75]);
-
-  const weightedValue = parseFloat(estimatedValue || '0') * (probability[0] / 100);
-
-  return (
-    <div className="space-y-4">
-      <h4 className="mb-4">Werteberechnung</h4>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Gewichteter Wert (Echtzeit)</CardTitle>
-          <CardDescription>
-            Automatische Berechnung: Geschätzter Wert × Wahrscheinlichkeit
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Input: Estimated Value */}
-            <div className="space-y-2">
-              <Label>Geschätzter Auftragswert</Label>
-              <div className="relative">
-                <Input
-                  type="number"
-                  value={estimatedValue}
-                  onChange={(e) => setEstimatedValue(e.target.value)}
-                  placeholder="125000"
-                  className="pr-8"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  €
-                </span>
-              </div>
-            </div>
-
-            {/* Input: Probability */}
-            <div className="space-y-2">
-              <Label>Wahrscheinlichkeit: {probability[0]}%</Label>
-              <Slider
-                value={probability}
-                onValueChange={setProbability}
-                max={100}
-                step={5}
-                className="mt-6"
-              />
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Calculation Breakdown */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Geschätzter Wert:</span>
-              <span className="font-medium">{formatCurrency(parseFloat(estimatedValue || '0'))}</span>
-            </div>
-
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Wahrscheinlichkeit:</span>
-              <span className="font-medium">{probability[0]}%</span>
-            </div>
-
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Berechnung:</span>
-              <span className="font-mono text-xs">
-                {formatCurrency(parseFloat(estimatedValue || '0'))} × {probability[0] / 100}
-              </span>
-            </div>
-
-            <Separator />
-
-            <div className="flex justify-between items-baseline bg-accent/50 p-3 rounded-lg">
-              <span className="font-semibold">Gewichteter Wert:</span>
-              <span className="text-2xl font-bold text-primary">
-                {formatCurrency(weightedValue)}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <p className="text-sm text-muted-foreground">
-        Der gewichtete Wert wird in Echtzeit berechnet und automatisch aktualisiert
-      </p>
-    </div>
-  );
-}
-
-export function OpportunityFormDemo() {
-  return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Vollständiges Opportunity-Formular</CardTitle>
-          <CardDescription>
-            Verkaufschance erfassen mit Wertschätzung, Wahrscheinlichkeit und statusabhängigen
-            Feldern
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <OpportunityForm currentUserRole="ADM" />
-            <p className="text-sm text-muted-foreground">
-              4 Abschnitte: Kunde & Grunddaten, Wertermittlung, Status & Zeitplan, Zuordnung
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Wahrscheinlichkeits-Slider</CardTitle>
-          <CardDescription>
-            Interaktiver Slider für Erfolgswahrscheinlichkeit (0-100% in 5%-Schritten)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ProbabilitySliderDemo />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Status-Übergang</CardTitle>
-          <CardDescription>
-            Visueller Fortschrittsindikator durch den Verkaufsprozess
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <StatusTransitionDemo />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Statusabhängige Felder</CardTitle>
-          <CardDescription>
-            Bedingte Felder erscheinen basierend auf dem Opportunity-Status
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ConditionalFieldsDemo />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Werteberechnung</CardTitle>
-          <CardDescription>
-            Automatische Echtzeit-Berechnung des gewichteten Werts
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ValueCalculationDemo />
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      <div>
-        <h4 className="mb-4">Design-Richtlinien</h4>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Formular-Layout</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Dialog: 900px Breite</li>
-              <li>• 2-Spalten-Layout</li>
-              <li>• Prominente Wertekarten</li>
-              <li>• Bedingte Abschnitte</li>
-              <li>• Footer mit Entwurf-Option</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Pflichtfelder</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Kunde *</li>
-              <li>• Titel * (5-200 chars)</li>
-              <li>• Geschätzter Wert *</li>
-              <li>• Wahrscheinlichkeit *</li>
-              <li>• Status *</li>
-              <li>• Verantwortlicher *</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Wertekarten</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Geschätzter Wert (Input)</li>
-              <li>• Wahrscheinlichkeit (Slider)</li>
-              <li>• Gewichteter Wert (berechnet)</li>
-              <li>• Icons: Euro, TrendingUp</li>
-              <li>• Große Schrift (24-32px)</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Status-Werte</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Neu (blau)</li>
-              <li>• Qualifizierung (amber)</li>
-              <li>• Angebot erstellt (lila)</li>
-              <li>• Verhandlung (orange)</li>
-              <li>• Gewonnen (grün)</li>
-              <li>• Verloren (rot)</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Bedingte Felder</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Won: Tatsächlicher Wert *</li>
-              <li>• Won: Auftragsdatum *</li>
-              <li>• Lost: Verlustgrund * (≥10)</li>
-              <li>• Lost: Wettbewerber</li>
-              <li>• Werteabweichung anzeigen</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Wahrscheinlichkeit</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Slider: 0-100%</li>
-              <li>• Schritte: 5%</li>
-              <li>• Große Anzeige (32px)</li>
-              <li>• Echtzeit-Update</li>
-              <li>• Markierungen: 0/25/50/75/100</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
