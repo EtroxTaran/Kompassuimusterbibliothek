@@ -58,31 +58,8 @@ import {
   Navigation,
 } from 'lucide-react';
 
-// Location types
-export type LocationType = 'headquarter' | 'branch' | 'warehouse' | 'project' | 'other';
-export type LocationStatus = 'active' | 'inactive';
-
-export interface Location {
-  id: string;
-  name: string;
-  type: LocationType;
-  status: LocationStatus;
-  isPrimary: boolean;
-  address: {
-    street: string;
-    postalCode: string;
-    city: string;
-    country: string;
-  };
-  primaryContact?: {
-    name: string;
-    phone: string;
-  };
-  additionalContacts?: number;
-  deliveryNotes?: string;
-  openingHours?: string;
-  parkingInfo?: string;
-}
+import { LocationForm } from './LocationFormDemo';
+import { Location, LocationType, useData } from './providers/DataProvider';
 
 // Location type config
 export const locationTypeConfig: Record<
@@ -120,83 +97,6 @@ export const locationTypeConfig: Record<
     icon: MapPin,
   },
 };
-
-// Sample locations
-const sampleLocations: Location[] = [
-  {
-    id: '1',
-    name: 'Filiale München Süd',
-    type: 'branch',
-    status: 'active',
-    isPrimary: true,
-    address: {
-      street: 'Industriestraße 42',
-      postalCode: '81379',
-      city: 'München',
-      country: 'Deutschland',
-    },
-    primaryContact: {
-      name: 'Hans Müller',
-      phone: '+49-89-1234567',
-    },
-    additionalContacts: 2,
-    deliveryNotes:
-      'Hintereingang nutzen. Parkplätze vorhanden. Anlieferung Mo-Fr 8-16 Uhr.',
-    openingHours: 'Mo-Fr: 8:00-18:00, Sa: 9:00-14:00',
-    parkingInfo: '5 Parkplätze hinter dem Gebäude',
-  },
-  {
-    id: '2',
-    name: 'Hauptsitz',
-    type: 'headquarter',
-    status: 'active',
-    isPrimary: false,
-    address: {
-      street: 'Hauptstraße 1',
-      postalCode: '80331',
-      city: 'München',
-      country: 'Deutschland',
-    },
-    primaryContact: {
-      name: 'Maria Schmidt',
-      phone: '+49-89-9876543',
-    },
-    deliveryNotes: 'Empfang im Erdgeschoss. Zufahrt über Seitenstraße.',
-  },
-  {
-    id: '3',
-    name: 'Lager Augsburg',
-    type: 'warehouse',
-    status: 'inactive',
-    isPrimary: false,
-    address: {
-      street: 'Lagerstraße 10',
-      postalCode: '86150',
-      city: 'Augsburg',
-      country: 'Deutschland',
-    },
-    deliveryNotes: 'Geschlossen seit 01.10.2024. Keine Anlieferung möglich.',
-  },
-  {
-    id: '4',
-    name: 'Baustelle Regensburg',
-    type: 'project',
-    status: 'active',
-    isPrimary: false,
-    address: {
-      street: 'Bahnhofstraße 55',
-      postalCode: '93047',
-      city: 'Regensburg',
-      country: 'Deutschland',
-    },
-    primaryContact: {
-      name: 'Thomas Weber',
-      phone: '+49-941-555666',
-    },
-    deliveryNotes: 'Temporärer Standort bis 31.12.2024. Baustellenzufahrt nutzen.',
-    parkingInfo: 'Nur für Lieferfahrzeuge',
-  },
-];
 
 // Location card component
 export function LocationCard({
@@ -433,16 +333,22 @@ export function LocationCard({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={onEdit}
-                    disabled={!canEdit}
-                  >
-                    <Pencil className="h-4 w-4" />
-                    {!canEdit && <Lock className="h-2 w-2 absolute top-1 right-1" />}
-                  </Button>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <LocationForm 
+                      isEdit={true}
+                      customTrigger={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          disabled={!canEdit}
+                        >
+                          <Pencil className="h-4 w-4" />
+                          {!canEdit && <Lock className="h-2 w-2 absolute top-1 right-1" />}
+                        </Button>
+                      }
+                    />
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent>
                   {canEdit ? 'Bearbeiten' : 'Keine Berechtigung zum Bearbeiten'}
@@ -491,7 +397,10 @@ export function LocationCard({
 
 // Full location list view
 export function LocationListView({ userRole = 'GF', initialLocations }: { userRole?: 'GF' | 'PLAN' | 'ADM', initialLocations?: Location[] }) {
-  const [locations, setLocations] = useState(initialLocations || sampleLocations);
+  const { customers } = useData();
+  
+  // Use initialLocations if provided, otherwise fallback to empty or first customer's locations for demo
+  const [locations, setLocations] = useState(initialLocations || (customers[0]?.locations || []));
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [filterStatus, setFilterStatus] = useState<'all' | 'active'>('all');
   const [sortBy, setSortBy] = useState('name');
@@ -566,12 +475,9 @@ export function LocationListView({ userRole = 'GF', initialLocations }: { userRo
             <h3>Standorte</h3>
             <Badge variant="secondary">{locations.length}</Badge>
           </div>
-          <p className="text-sm text-muted-foreground">Hofladen Müller GmbH</p>
+          <p className="text-sm text-muted-foreground">Standortverwaltung</p>
         </div>
-        <Button disabled={!canEdit}>
-          <Plus className="mr-2 h-4 w-4" />
-          Standort hinzufügen
-        </Button>
+        <LocationForm />
       </div>
 
       {/* Controls */}
@@ -728,7 +634,7 @@ export function LocationListView({ userRole = 'GF', initialLocations }: { userRo
 }
 
 // Location type examples
-function LocationTypeExamples() {
+export function LocationTypeExamples() {
   const types: LocationType[] = ['headquarter', 'branch', 'warehouse', 'project', 'other'];
 
   return (
@@ -770,8 +676,11 @@ function LocationTypeExamples() {
 }
 
 // Single location card demo
-function SingleLocationDemo() {
-  const location = sampleLocations[0]; // Primary location
+export function SingleLocationDemo() {
+  const { customers } = useData();
+  const location = customers[0]?.locations?.[0]; // Primary location of first customer
+
+  if (!location) return <div>Kein Standort verfügbar</div>;
 
   return (
     <div className="space-y-4">
@@ -790,159 +699,13 @@ function SingleLocationDemo() {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Vollständige Standortkarte mit Adresse, Kontakt, erweiterbaren Lieferhinweisen und goldenem
-        Stern für Standard-Lieferstandort
+        Vollständige Standortkarte mit Adresse, Kontakt, erweiterbaren Lieferhinweisen und Quick-Actions
       </p>
     </div>
   );
 }
 
-// RBAC restricted demo
-function RestrictedLocationDemo() {
-  const location = sampleLocations[1];
-
-  return (
-    <div className="space-y-4">
-      <h4 className="mb-4">Eingeschränkte Ansicht (ADM-Rolle)</h4>
-
-      <div className="max-w-md">
-        <LocationCard
-          location={location}
-          isSelected={false}
-          onSelect={() => {}}
-          onSetPrimary={() => {}}
-          onEdit={() => {}}
-          onDelete={() => {}}
-          canEdit={false}
-        />
-      </div>
-
-      <p className="text-sm text-muted-foreground">
-        ADM-Benutzer sehen Lock-Icon bei Bearbeiten-Button und können keine Änderungen vornehmen
-      </p>
-    </div>
-  );
-}
-
+// Export for List Demo
 export function LocationListDemo() {
-  return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Vollständige Standortliste</CardTitle>
-          <CardDescription>
-            Standorte mit Adressen, Kontakten, Lieferhinweisen und Standard-Standort-Indikator
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LocationListView userRole="GF" />
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Einzelne Standortkarte</CardTitle>
-          <CardDescription>
-            Karte mit allen Details: Adresse, Kontakt, Lieferhinweise, Standard-Indikator
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SingleLocationDemo />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Standort-Typen</CardTitle>
-          <CardDescription>5 verschiedene Typen mit Icons und Farbkodierung</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LocationTypeExamples />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>RBAC-Einschränkung</CardTitle>
-          <CardDescription>
-            ADM-Benutzer können Standorte nicht bearbeiten (nur eigene Kunden)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RestrictedLocationDemo />
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      <div>
-        <h4 className="mb-4">Design-Richtlinien</h4>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Standortkarte</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Grid: 2-3 Karten pro Zeile</li>
-              <li>• Checkbox für Auswahl</li>
-              <li>• Standortname (18px, fett)</li>
-              <li>• Typ- und Status-Badges</li>
-              <li>• Goldener Stern (Standard)</li>
-              <li>• Hover: Shadow + Border</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Standort-Typen</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Hauptsitz (Lila, Building2)</li>
-              <li>• Filiale (Blau, Store)</li>
-              <li>• Lager (Amber, Package)</li>
-              <li>• Projektstandort (Grün, HardHat)</li>
-              <li>• Sonstige (Grau, MapPin)</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Adresse</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• MapPin Icon</li>
-              <li>• Straße, PLZ, Stadt</li>
-              <li>• Land</li>
-              <li>• 14px, Zeilenhöhe 1.6</li>
-              <li>• Grauer Text</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Kontakt</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• User Icon</li>
-              <li>• &quot;Ansprechpartner&quot; Label</li>
-              <li>• Name (14px, semibold)</li>
-              <li>• Telefon mit Phone Icon</li>
-              <li>• &quot;+X weitere Kontakte&quot;</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Lieferhinweise</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Truck Icon</li>
-              <li>• Erweiterbar (Chevron)</li>
-              <li>• Grauer Hintergrund erweitert</li>
-              <li>• Öffnungszeiten</li>
-              <li>• Parkinfo</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Aktionen</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Eye: Details anzeigen</li>
-              <li>• Pencil: Bearbeiten</li>
-              <li>• Star: Als Standard festlegen</li>
-              <li>• Trash: Löschen</li>
-              <li>• Lock: RBAC-Einschränkung</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    return <LocationListView />;
 }

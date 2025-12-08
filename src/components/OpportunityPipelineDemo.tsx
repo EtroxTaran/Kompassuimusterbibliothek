@@ -46,6 +46,8 @@ import {
   GripVertical,
 } from 'lucide-react';
 
+import { OpportunityForm } from './OpportunityFormDemo';
+
 // Opportunity status
 export type OpportunityStatus = 'new' | 'qualifying' | 'proposal' | 'negotiation' | 'won' | 'lost';
 
@@ -532,6 +534,7 @@ function KanbanColumn({
 export function OpportunityPipelineView({ userRole = 'GF', initialOpportunities }: { userRole?: 'GF' | 'PLAN' | 'ADM' | 'KALK', initialOpportunities?: Opportunity[] }) {
   const [opportunities, setOpportunities] = useState(initialOpportunities || sampleOpportunities);
   const [filterOwner, setFilterOwner] = useState<string>('all');
+  const [showNewOpportunityForm, setShowNewOpportunityForm] = useState(false);
 
   const canEdit = userRole === 'GF' || userRole === 'PLAN';
 
@@ -594,10 +597,16 @@ export function OpportunityPipelineView({ userRole = 'GF', initialOpportunities 
             <ListIcon className="mr-2 h-4 w-4" />
             Liste
           </Button>
-          <Button disabled={!canEdit}>
-            <Plus className="mr-2 h-4 w-4" />
-            Opportunity hinzufügen
-          </Button>
+          <OpportunityForm 
+            currentUserRole={userRole as any} 
+            isEdit={false}
+            customTrigger={
+              <Button disabled={!canEdit}>
+                <Plus className="mr-2 h-4 w-4" />
+                Opportunity hinzufügen
+              </Button>
+            } 
+          />
         </div>
       </div>
 

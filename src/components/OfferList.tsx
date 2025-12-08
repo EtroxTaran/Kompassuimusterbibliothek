@@ -26,6 +26,9 @@ import {
   Calendar,
 } from 'lucide-react';
 
+import { OfferForm } from './OfferForm';
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
+
 // Offer status type
 type OfferStatus = 'draft' | 'sent' | 'accepted' | 'rejected';
 
@@ -153,6 +156,7 @@ function getStatusBadge(status: OfferStatus) {
 export function OfferList() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isNewOfferOpen, setIsNewOfferOpen] = useState(false);
 
   // Calculate KPIs
   const totalOffers = mockOffers.length;
@@ -309,10 +313,17 @@ export function OfferList() {
                   <SelectItem value="rejected">Abgelehnt</SelectItem>
                 </SelectContent>
               </Select>
-              <Button onClick={handleNewOffer}>
-                <Plus className="mr-2 h-4 w-4" />
-                Neues Angebot
-              </Button>
+              <Dialog open={isNewOfferOpen} onOpenChange={setIsNewOfferOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Neues Angebot
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <OfferForm onCancel={() => setIsNewOfferOpen(false)} onSuccess={() => setIsNewOfferOpen(false)} />
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </CardHeader>

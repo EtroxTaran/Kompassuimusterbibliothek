@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Checkbox } from './ui/checkbox';
@@ -649,13 +650,13 @@ function LocationAssignmentTab() {
 }
 
 // Full Contact Form Dialog
-function ContactFormDialog() {
+export function ContactForm({ isEdit = false, customTrigger }: { isEdit?: boolean, customTrigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState<UserRole>('PLAN');
   const [activeTab, setActiveTab] = useState('basic');
 
   const handleSave = () => {
-    toast.success('Kontakt gespeichert', {
+    toast.success(isEdit ? 'Kontakt aktualisiert' : 'Kontakt gespeichert', {
       description: 'Der Kontakt wurde erfolgreich gespeichert.',
     });
     setOpen(false);
@@ -663,7 +664,9 @@ function ContactFormDialog() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4">
+      {/* Role Sim (Hidden in production usage, kept for demo if no trigger provided) */}
+      {!customTrigger && (
+      <div className="flex items-center gap-4 mb-4">
         <h4>Benutzerrolle simulieren:</h4>
         <Select value={currentUserRole} onValueChange={(value) => setCurrentUserRole(value as UserRole)}>
           <SelectTrigger className="w-32">
@@ -679,17 +682,20 @@ function ContactFormDialog() {
           {currentUserRole === 'ADM' ? 'Eingeschränkter Zugriff' : 'Voller Zugriff'}
         </Badge>
       </div>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
+          {customTrigger ? customTrigger : (
           <Button>
             <UserPlus className="mr-2 h-4 w-4" />
-            Neuer Kontakt
+            {isEdit ? 'Kontakt bearbeiten' : 'Neuer Kontakt'}
           </Button>
+          )}
         </DialogTrigger>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Neuer Kontakt</DialogTitle>
+            <DialogTitle>{isEdit ? 'Kontakt bearbeiten' : 'Neuer Kontakt'}</DialogTitle>
             <DialogDescription>
               <Badge variant="secondary" className="mt-2">
                 <Building2 className="mr-1 h-3 w-3" />
@@ -946,7 +952,7 @@ export function ContactFormDemo() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ContactFormDialog />
+          <ContactForm />
         </CardContent>
       </Card>
 

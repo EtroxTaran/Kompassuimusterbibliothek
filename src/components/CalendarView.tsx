@@ -273,10 +273,12 @@ function EventDetailDialog({
   event,
   isOpen,
   onClose,
+  onEdit,
 }: {
   event: CalendarEvent | null;
   isOpen: boolean;
   onClose: () => void;
+  onEdit?: (event: CalendarEvent) => void;
 }) {
   if (!event) return null;
 
@@ -378,7 +380,7 @@ function EventDetailDialog({
           <Button variant="outline" onClick={onClose}>
             Schließen
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => onEdit && onEdit(event)}>
             Bearbeiten
           </Button>
           <Button variant="destructive">
@@ -727,6 +729,8 @@ function AgendaView({
   );
 }
 
+import { TaskForm } from './TaskForm';
+
 // Main Calendar View Component
 export function CalendarView() {
   const [viewMode, setViewMode] = useState<ViewMode>('month');
@@ -734,6 +738,9 @@ export function CalendarView() {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [showEventDetail, setShowEventDetail] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showTaskForm, setShowTaskForm] = useState(false);
+  const [taskFormMode, setTaskFormMode] = useState<'create' | 'edit'>('create');
+  const [currentTaskType, setCurrentTaskType] = useState<'user_task' | 'project_task'>('user_task');
   const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState({
     eventTypes: ['user_task', 'project_task', 'project_deadline', 'opportunity_close'],
@@ -799,6 +806,23 @@ export function CalendarView() {
   const handleEventClick = (event: CalendarEvent) => {
     setSelectedEvent(event);
     setShowEventDetail(true);
+  };
+
+  const handleEditEvent = (event: CalendarEvent) => {
+    setShowEventDetail(false);
+    if (event.type === 'user_task' || event.type === 'project_task') {
+        setCurrentTaskType(event.type);
+        setTaskFormMode('edit');
+        setShowTaskForm(true);
+    } else {
+        toast.info("Bearbeiten für diesen Event-Typ noch nicht implementiert");
+    }
+  };
+
+  const handleCreateEvent = () => {
+      setTaskFormMode('create');
+      setCurrentTaskType('user_task');
+      setShowTaskForm(true);
   };
 
   // Active filter count
@@ -882,7 +906,7 @@ export function CalendarView() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button size="sm" onClick={() => toast.info('Ereignis erstellen...')}>
+              <Button size="sm" onClick={handleCreateEvent}>
                 <Plus className="h-4 w-4 mr-2" />
                 Neues Ereignis
               </Button>
@@ -927,6 +951,7 @@ export function CalendarView() {
         event={selectedEvent}
         isOpen={showEventDetail}
         onClose={() => setShowEventDetail(false)}
+        onEdit={handleEditEvent}
       />
 
       {/* Filter Panel */}
@@ -935,6 +960,18 @@ export function CalendarView() {
         onClose={() => setShowFilters(false)}
         filters={filters}
         onFilterChange={setFilters}
+      />
+
+      <TaskForm
+        open={showTaskForm}
+        mode={taskFormMode}
+        taskType={currentTaskType}
+        onCancel={() => setShowTaskForm(false)}
+        onSubmit={async (data) => {
+            console.log(data);
+            setShowTaskForm(false);
+            toast.success(taskFormMode === 'create' ? "Termin erstellt" : "Termin aktualisiert");
+        }}
       />
     </div>
   );

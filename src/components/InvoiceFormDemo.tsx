@@ -109,7 +109,7 @@ function formatCurrency(amount: number): string {
 }
 
 // Full Invoice Form
-function InvoiceForm({ currentUserRole = 'BUCH', initialStatus = 'draft' }: { currentUserRole?: UserRole; initialStatus?: 'draft' | 'finalized' }) {
+export function InvoiceForm({ currentUserRole = 'BUCH', initialStatus = 'draft', onCancel }: { currentUserRole?: UserRole; initialStatus?: 'draft' | 'finalized', onCancel?: () => void }) {
   const [invoiceNumber] = useState('R-2024-00456');
   const [status, setStatus] = useState<'draft' | 'finalized'>(initialStatus);
   const [customerId, setCustomerId] = useState('1');
@@ -649,7 +649,7 @@ function InvoiceForm({ currentUserRole = 'BUCH', initialStatus = 'draft' }: { cu
                     <Save className="mr-2 h-4 w-4" />
                     Als Entwurf speichern
                   </Button>
-                  <Button variant="outline">Abbrechen</Button>
+                  <Button variant="outline" onClick={onCancel}>Abbrechen</Button>
                   {canFinalize && (
                     <Button
                       onClick={() => setShowFinalizeDialog(true)}

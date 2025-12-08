@@ -63,7 +63,7 @@ const customerContacts = [
 const existingLocations = ['Hauptsitz München', 'Filiale Berlin', 'Lager Hamburg'];
 
 // Full Location Form
-function LocationForm({ isEdit = false }: { isEdit?: boolean }) {
+export function LocationForm({ isEdit = false, customTrigger }: { isEdit?: boolean, customTrigger?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -231,10 +231,12 @@ function LocationForm({ isEdit = false }: { isEdit?: boolean }) {
       if (!isOpen) resetForm();
     }}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          {isEdit ? 'Standort bearbeiten' : 'Neuer Standort'}
-        </Button>
+        {customTrigger ? customTrigger : (
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            {isEdit ? 'Standort bearbeiten' : 'Neuer Standort'}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>

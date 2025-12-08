@@ -4,6 +4,11 @@ import { DataProvider, useData } from './providers/DataProvider';
 
 // Dashboard
 import { INNDashboardDemo } from './INNDashboard';
+import { GFDashboardDemo } from './GFDashboard';
+import { ADMDashboardDemo } from './ADMDashboard';
+import { PLANDashboardDemo } from './PLANDashboard';
+import { KALKDashboardDemo } from './KALKDashboard';
+import { BUCHDashboardDemo } from './BUCHDashboard';
 
 // Customers
 import { CustomerListDemo } from './CustomerListDemo';
@@ -20,6 +25,9 @@ import { MapRoutePlannerDemo } from './MapRoutePlanner';
 import { ProjectPortfolioDemo } from './ProjectPortfolioDemo';
 import { TimeTrackingList } from './TimeTrackingList';
 import { TimeEntryFormDemo } from './TimeEntryForm';
+import { ProjectDetailView } from './ProjectDetailView';
+import { ProjectMaterialsViewDemo } from './ProjectMaterialsView';
+import { SupplierListViewDemo } from './SupplierListView';
 
 // Invoices
 import { InvoiceListDemo } from './InvoiceListDemo';
@@ -28,6 +36,7 @@ import { PaymentList } from './PaymentList';
 // Activities
 import { ActivityTimelineDemo } from './ActivityTimelineDemo';
 import { TaskDashboard } from './TaskDashboard';
+import { CalendarViewDemo } from './CalendarView';
 
 // Settings
 import { SettingsPage } from './SettingsPage';
@@ -88,8 +97,23 @@ function CustomerDetailWrapper({ id, onBack }: { id: string, onBack: () => void 
     );
 }
 
+function ProjectDetailWrapper({ id, userRole }: { id: string, userRole: any }) {
+    const { getProject } = useData();
+    const project = getProject(id);
+
+    if (!project) return <div>Projekt nicht gefunden</div>;
+
+    return (
+        <ProjectDetailView 
+            project={project}
+            currentUserRole={userRole}
+            currentUserId="1"
+        />
+    );
+}
+
 function KompassAppContent() {
-  const [activePage, setActivePage] = useState('dashboard');
+  const [activePage, setActivePage] = useState('dashboard-overview');
   const [activeId, setActiveId] = useState<string | null>(null);
   
   // Mock User Role
@@ -103,13 +127,20 @@ function KompassAppContent() {
 
   // Role Based Routing Logic
   const isAllowed = (page: string) => {
+      // Allow all for demo purposes unless specifically restricted
       const permissions: Record<string, string[]> = {
-          'dashboard': ['GF', 'ADM', 'PLAN', 'KALK', 'BUCH'],
+          'dashboard-overview': ['GF', 'ADM', 'PLAN', 'KALK', 'BUCH'],
+          'dashboard-gf': ['GF', 'ADM', 'PLAN', 'KALK', 'BUCH'],
+          'dashboard-adm': ['GF', 'ADM', 'PLAN', 'KALK', 'BUCH'],
+          'dashboard-plan': ['GF', 'ADM', 'PLAN', 'KALK', 'BUCH'],
+          'dashboard-kalk': ['GF', 'ADM', 'PLAN', 'KALK', 'BUCH'],
+          'dashboard-buch': ['GF', 'ADM', 'PLAN', 'KALK', 'BUCH'],
+          'dashboard-tasks': ['GF', 'ADM', 'PLAN', 'KALK', 'BUCH'],
+          'dashboard-projects': ['GF', 'ADM', 'PLAN', 'KALK'],
           'rechnungen-list': ['GF', 'BUCH'],
           'zahlungen': ['GF', 'BUCH'],
-          'projekte': ['GF', 'ADM', 'PLAN', 'KALK'], // ADM can see projects?
-          'einstellungen': ['GF', 'ADM', 'PLAN', 'KALK', 'BUCH'], // Everyone can access settings
-          // ... add others
+          // Projects/Procurement allowed for ADM too in demo
+          'projekte': ['GF', 'ADM', 'PLAN', 'KALK'],
       };
 
       // Specific overrides
@@ -127,15 +158,30 @@ function KompassAppContent() {
         return <CustomerDetailWrapper id={activeId} onBack={() => navigate('kundenliste')} />;
     }
     
-    // Project Detail placeholder
-    if (activePage === 'project-detail' && activeId) {
-         return <PlaceholderPage title={`Projekt Details: ${activeId}`} />;
+    if (activePage === 'project-detail') {
+         if (!activeId) return <div>Kein Projekt ausgewählt</div>;
+         return <ProjectDetailWrapper id={activeId} userRole={userRole} />;
     }
 
     switch (activePage) {
       // Dashboard
-      case 'dashboard':
-        return <INNDashboardDemo />;
+      case 'dashboard': // Fallback
+      case 'dashboard-overview':
+        return <INNDashboardDemo onNavigate={(id) => navigate(id)} />;
+      case 'dashboard-gf':
+        return <GFDashboardDemo />;
+      case 'dashboard-adm':
+        return <ADMDashboardDemo />;
+      case 'dashboard-plan':
+        return <PLANDashboardDemo />;
+      case 'dashboard-kalk':
+        return <KALKDashboardDemo />;
+      case 'dashboard-buch':
+        return <BUCHDashboardDemo />;
+      case 'dashboard-tasks':
+        return <TaskDashboard />;
+      case 'dashboard-projects':
+        return <ProjectPortfolioDemo onProjectClick={(id) => navigate('project-detail', id)} />;
       
       // Kunden
       case 'kundenliste':
@@ -159,12 +205,12 @@ function KompassAppContent() {
       case 'projektuebersicht':
         return <ProjectPortfolioDemo onProjectClick={(id) => navigate('project-detail', id)} />;
       case 'zeiterfassung':
-        return <TimeEntryFormDemo />; // Use the full demo which includes the list? No, use TimeTrackingList for list
-      case 'zeiterfassung-list': // New key for list
-         return <TimeTrackingList />;
-      case 'zeiterfassung': // Keep legacy key mapping to list
-         return <TimeTrackingList />;
-      
+        return <TimeTrackingList />;
+      case 'material':
+        return <ProjectMaterialsViewDemo />;
+      case 'lieferanten':
+        return <SupplierListViewDemo userRole={userRole} />;
+
       // Rechnungen
       case 'rechnungen-list':
         return <InvoiceListDemo />;
@@ -176,6 +222,8 @@ function KompassAppContent() {
         return <ActivityTimelineDemo />;
       case 'aufgaben':
         return <TaskDashboard />;
+      case 'kalender':
+        return <CalendarViewDemo />;
       
       // Settings
       case 'einstellungen':
@@ -193,9 +241,19 @@ function KompassAppContent() {
     if (activePage === 'customer-detail') {
         return [...base, { label: 'Kunden', href: '#' }, { label: 'Kundenliste', href: '#' }, { label: 'Details' }];
     }
+    if (activePage === 'project-detail') {
+        return [...base, { label: 'Projekte', href: '#' }, { label: 'Übersicht', href: '#' }, { label: 'Details' }];
+    }
 
     const mapping: Record<string, { label: string; href?: string }[]> = {
-      dashboard: [{ label: 'Dashboard' }],
+      'dashboard-overview': [{ label: 'Dashboards' }, { label: 'Übersicht (INN)' }],
+      'dashboard-gf': [{ label: 'Dashboards' }, { label: 'Geschäftsführung' }],
+      'dashboard-adm': [{ label: 'Dashboards' }, { label: 'Außendienst' }],
+      'dashboard-plan': [{ label: 'Dashboards' }, { label: 'Planung' }],
+      'dashboard-kalk': [{ label: 'Dashboards' }, { label: 'Kalkulation' }],
+      'dashboard-buch': [{ label: 'Dashboards' }, { label: 'Buchhaltung' }],
+      'dashboard-tasks': [{ label: 'Dashboards' }, { label: 'Aufgaben' }],
+      'dashboard-projects': [{ label: 'Dashboards' }, { label: 'Projekte' }],
       kundenliste: [{ label: 'Kunden' }, { label: 'Kundenliste' }],
       standorte: [{ label: 'Kunden' }, { label: 'Standorte' }],
       kontakte: [{ label: 'Kunden' }, { label: 'Kontakte' }],
@@ -205,10 +263,13 @@ function KompassAppContent() {
       touren: [{ label: 'Vertrieb' }, { label: 'Tourenplanung' }],
       projektuebersicht: [{ label: 'Projekte' }, { label: 'Übersicht' }],
       zeiterfassung: [{ label: 'Projekte' }, { label: 'Zeiterfassung' }],
+      material: [{ label: 'Projekte' }, { label: 'Material & Katalog' }],
+      lieferanten: [{ label: 'Projekte' }, { label: 'Lieferanten' }],
       'rechnungen-list': [{ label: 'Rechnungen' }, { label: 'Übersicht' }],
       zahlungen: [{ label: 'Rechnungen' }, { label: 'Zahlungen' }],
       protokolle: [{ label: 'Aktivitäten' }, { label: 'Protokolle' }],
       aufgaben: [{ label: 'Aktivitäten' }, { label: 'Aufgaben' }],
+      kalender: [{ label: 'Aktivitäten' }, { label: 'Kalender' }],
       einstellungen: [{ label: 'Einstellungen' }],
     };
 
@@ -222,7 +283,7 @@ function KompassAppContent() {
       breadcrumbs={getBreadcrumbs()}
       isOffline={false}
       pendingChanges={0}
-      activeId={activePage.startsWith('customer-detail') ? 'kundenliste' : activePage} // Highlight parent in sidebar
+      activeId={activePage.startsWith('customer-detail') ? 'kundenliste' : activePage.startsWith('project-detail') ? 'projektuebersicht' : activePage}
       onNavigate={(id) => navigate(id)}
     >
       {renderContent()}
@@ -232,8 +293,6 @@ function KompassAppContent() {
 
 export function KompassApp() {
     return (
-        <DataProvider>
-            <KompassAppContent />
-        </DataProvider>
+        <KompassAppContent />
     );
 }

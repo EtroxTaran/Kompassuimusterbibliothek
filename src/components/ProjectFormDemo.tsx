@@ -90,7 +90,7 @@ function calculateDuration(startDate: string, endDate: string): number {
 }
 
 // Full Project Form
-function ProjectForm({
+export function ProjectForm({
   fromOpportunity = false,
   isEdit = false,
 }: {

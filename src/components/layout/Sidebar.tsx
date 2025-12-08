@@ -42,7 +42,7 @@ export function Sidebar({
   activeId = 'dashboard',
   onNavigate
 }: SidebarProps) {
-  const [expandedItems, setExpandedItems] = useState<string[]>(['kunden', 'vertrieb', 'projekte', 'rechnungen', 'aktivitaeten']);
+  const [expandedItems, setExpandedItems] = useState<string[]>(['dashboard', 'kunden', 'vertrieb', 'projekte', 'rechnungen', 'aktivitaeten']);
 
   // Update expanded items if activeId is in a submenu
   useEffect(() => {
@@ -52,7 +52,21 @@ export function Sidebar({
   // Menu configuration based on role
   const getMenuItems = (): MenuItem[] => {
     const allItems: MenuItem[] = [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      {
+        id: 'dashboard',
+        label: 'Dashboards',
+        icon: LayoutDashboard,
+        submenu: [
+          { id: 'dashboard-overview', label: 'Übersicht (INN)' },
+          { id: 'dashboard-gf', label: 'Geschäftsführung' },
+          { id: 'dashboard-adm', label: 'Außendienst' },
+          { id: 'dashboard-plan', label: 'Planung' },
+          { id: 'dashboard-kalk', label: 'Kalkulation' },
+          { id: 'dashboard-buch', label: 'Buchhaltung' },
+          { id: 'dashboard-tasks', label: 'Aufgaben' },
+          { id: 'dashboard-projects', label: 'Projekte' },
+        ],
+      },
       {
         id: 'kunden',
         label: 'Kunden',
@@ -82,6 +96,8 @@ export function Sidebar({
         submenu: [
           { id: 'projektuebersicht', label: 'Projektübersicht' },
           { id: 'zeiterfassung', label: 'Zeiterfassung' },
+          { id: 'material', label: 'Material & Katalog' },
+          { id: 'lieferanten', label: 'Lieferanten' },
         ],
       },
       {
@@ -98,6 +114,7 @@ export function Sidebar({
         label: 'Aktivitäten',
         icon: ClipboardList,
         submenu: [
+          { id: 'kalender', label: 'Kalender' },
           { id: 'protokolle', label: 'Protokolle' },
           { id: 'aufgaben', label: 'Aufgaben' },
         ],

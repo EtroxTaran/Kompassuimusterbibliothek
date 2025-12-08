@@ -63,8 +63,14 @@ import {
   Plus,
   Search,
   X,
+  LayoutList,
+  GanttChartSquare,
 } from 'lucide-react';
 import { useData, Project } from './providers/DataProvider';
+
+import { ProjectForm } from './ProjectFormDemo';
+
+import { ProjectGanttChart } from './ProjectGanttChart';
 
 // --- Helper Functions and Types (Keep existing helpers) ---
 
@@ -273,9 +279,15 @@ function ProjectRow({
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClick}>
             <Eye className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Pencil className="h-4 w-4" />
-          </Button>
+          <ProjectForm 
+            isEdit={true}
+            // In a real app we would pass the project data here
+            customTrigger={
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Pencil className="h-4 w-4" />
+              </Button>
+            } 
+          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -428,6 +440,7 @@ function FilterSheet() {
 export function ProjectPortfolioView({ userRole = 'GF', onProjectClick }: { userRole?: string, onProjectClick?: (id: string) => void }) {
   const { projects } = useData();
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'table' | 'timeline'>('table');
 
   // Calculate KPIs
   const activeProjects = projects.filter((p) => 
@@ -458,10 +471,7 @@ export function ProjectPortfolioView({ userRole = 'GF', onProjectClick }: { user
             <Download className="h-4 w-4" />
             Export
           </Button>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Neues Projekt
-          </Button>
+          <ProjectForm />
         </div>
       </div>
 
@@ -507,7 +517,27 @@ export function ProjectPortfolioView({ userRole = 'GF', onProjectClick }: { user
                 className="pl-10"
               />
             </div>
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex gap-2 w-full sm:w-auto items-center">
+              <div className="flex items-center bg-muted rounded-lg p-1">
+                <Button
+                  variant={viewMode === 'table' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 px-3 gap-2"
+                  onClick={() => setViewMode('table')}
+                >
+                  <LayoutList className="h-4 w-4" />
+                  Liste
+                </Button>
+                <Button
+                  variant={viewMode === 'timeline' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 px-3 gap-2"
+                  onClick={() => setViewMode('timeline')}
+                >
+                  <GanttChartSquare className="h-4 w-4" />
+                  Zeitplan
+                </Button>
+              </div>
               <FilterSheet />
             </div>
           </div>
@@ -515,7 +545,13 @@ export function ProjectPortfolioView({ userRole = 'GF', onProjectClick }: { user
       </Card>
 
       {/* Content */}
-      <ProjectTableView projects={filteredProjects} userRole={userRole} onProjectClick={onProjectClick} />
+      {viewMode === 'table' ? (
+        <ProjectTableView projects={filteredProjects} userRole={userRole} onProjectClick={onProjectClick} />
+      ) : (
+        <div className="h-[calc(100vh-220px)] min-h-[500px]">
+          <ProjectGanttChart projects={filteredProjects} />
+        </div>
+      )}
     </div>
   );
 }

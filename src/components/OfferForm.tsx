@@ -73,7 +73,7 @@ function getStatusBadge(status: OfferStatus) {
   }
 }
 
-export function OfferForm() {
+export function OfferForm({ onCancel, onSuccess }: { onCancel?: () => void; onSuccess?: () => void }) {
   const [formData, setFormData] = useState<OfferFormData>({
     offerNumber: 'ANG-2024-0123',
     customerName: '',
@@ -464,7 +464,7 @@ export function OfferForm() {
           )}
         </div>
 
-        <Button variant="outline">Abbrechen</Button>
+        <Button variant="outline" onClick={onCancel}>Abbrechen</Button>
       </div>
     </div>
   );

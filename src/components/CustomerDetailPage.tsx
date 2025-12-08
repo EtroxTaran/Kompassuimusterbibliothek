@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -60,7 +60,7 @@ import {
   Briefcase,
   Clock as ClockIcon,
 } from 'lucide-react';
-import { Customer, Project } from './providers/DataProvider';
+import { Customer, Project, useData } from './providers/DataProvider';
 import { LocationListView, Location } from './LocationListDemo';
 import { ContactListView, Contact } from './ContactListDemo';
 import { OpportunityPipelineView, Opportunity } from './OpportunityPipelineDemo';
@@ -77,200 +77,6 @@ const mockMetrics = {
   revenue: { thisYear: 450000 },
   lastActivity: { daysAgo: 1, type: 'Telefonat' },
 };
-
-// Mock projects specific to this customer
-const customerProjects: Project[] = [
-  {
-    id: '1',
-    number: 'P-2024-B023',
-    customer: 'Hofladen Müller GmbH',
-    customerId: '1',
-    customerLocation: 'München',
-    name: 'Ladeneinrichtung Neueröffnung',
-    status: 'inProgress',
-    progress: 65,
-    milestones: { completed: 12, total: 18 },
-    startDate: '2024-12-01',
-    endDate: '2025-02-28',
-    budget: 450000,
-    actualCost: 290000,
-    margin: 15.6,
-    manager: { name: 'Thomas Fischer', initials: 'TF' },
-    teamSize: 5,
-  },
-  {
-    id: '2',
-    number: 'P-2024-A015',
-    customer: 'Hofladen Müller GmbH',
-    customerId: '1',
-    customerLocation: 'Augsburg',
-    name: 'Renovierung Verkaufsfläche',
-    status: 'completed',
-    progress: 100,
-    milestones: { completed: 8, total: 8 },
-    startDate: '2024-09-01',
-    endDate: '2024-10-30',
-    budget: 85000,
-    actualCost: 82000,
-    margin: 18.2,
-    manager: { name: 'Michael Schmidt', initials: 'MS' },
-    teamSize: 3,
-  },
-];
-
-// Mock locations for this customer
-const customerLocations: Location[] = [
-  {
-    id: '1',
-    name: 'Filiale München Süd',
-    type: 'branch',
-    status: 'active',
-    isPrimary: true,
-    address: {
-      street: 'Industriestraße 42',
-      postalCode: '81379',
-      city: 'München',
-      country: 'Deutschland',
-    },
-    primaryContact: {
-      name: 'Hans Müller',
-      phone: '+49-89-1234567',
-    },
-    additionalContacts: 2,
-    deliveryNotes: 'Hintereingang nutzen. Parkplätze vorhanden.',
-  },
-  {
-    id: '2',
-    name: 'Hauptsitz',
-    type: 'headquarter',
-    status: 'active',
-    isPrimary: false,
-    address: {
-      street: 'Hauptstraße 1',
-      postalCode: '80331',
-      city: 'München',
-      country: 'Deutschland',
-    },
-    primaryContact: {
-      name: 'Maria Schmidt',
-      phone: '+49-89-9876543',
-    },
-  },
-];
-
-// Mock contacts for this customer
-const customerContacts: Contact[] = [
-    {
-    id: '1',
-    firstName: 'Hans',
-    lastName: 'Müller',
-    title: 'Dr.',
-    position: 'Geschäftsführer',
-    decisionRole: 'decision-maker',
-    authorityLevel: 'final',
-    approvalLimit: 50000,
-    mobile: '+49-170-1234567',
-    phone: '+49-89-1234567',
-    email: 'h.mueller@hofladen-mueller.de',
-    preferredContact: 'email',
-    assignedLocations: ['Filiale München Süd', 'Hauptsitz'],
-    isPrimaryContact: true,
-    primaryForLocations: ['Filiale München Süd', 'Hauptsitz'],
-    lastActivity: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    canApprove: true,
-  },
-  {
-    id: '2',
-    firstName: 'Maria',
-    lastName: 'Schmidt',
-    position: 'Einkaufsleiterin',
-    decisionRole: 'key-influencer',
-    authorityLevel: 'high',
-    approvalLimit: 20000,
-    phone: '+49-89-9876543',
-    email: 'm.schmidt@hofladen-mueller.de',
-    preferredContact: 'phone',
-    functions: ['Einkaufsleiterin'],
-    assignedLocations: ['Hauptsitz'],
-    isPrimaryContact: true,
-    primaryForLocations: ['Hauptsitz'],
-    lastActivity: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    canApprove: true,
-  },
-];
-
-// Mock opportunities
-const customerOpportunities: Opportunity[] = [
-    {
-    id: '1',
-    title: 'Ladeneinrichtung Neueröffnung',
-    customer: 'Hofladen Müller GmbH',
-    value: 125000,
-    probability: 60,
-    expectedCloseDate: '2025-02-15',
-    owner: { name: 'Michael Schmidt', initials: 'MS' },
-    tags: ['Großprojekt', 'Q1'],
-    lastActivity: 'Vor 2 Tagen',
-    status: 'proposal',
-  },
-  {
-    id: '2',
-    title: 'Beleuchtung LED Umstellung',
-    customer: 'Hofladen Müller GmbH',
-    value: 35000,
-    probability: 90,
-    expectedCloseDate: '2025-01-15',
-    owner: { name: 'Thomas Müller', initials: 'TM' },
-    lastActivity: 'Vor 1 Tag',
-    status: 'negotiation',
-  },
-];
-
-// Mock activities
-const customerActivities: Activity[] = [
-    {
-    id: '1',
-    type: 'phone',
-    title: 'Telefonat mit Hr. Müller',
-    customerId: '1',
-    customerName: 'Hofladen Müller GmbH',
-    contactName: 'Hans Müller',
-    contactRole: 'Geschäftsführer',
-    description:
-      'Besprochen: Neue Filiale in München Süd geplant für Q1 2025. Interesse an Ladeneinrichtung im Wert von ca. 120.000 €. Wünscht detailliertes Angebot bis Ende des Monats.',
-    userId: '1',
-    userName: 'Michael Schmidt',
-    duration: 15,
-    followUp: '2024-11-22',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: '4',
-    type: 'note',
-    title: 'Kundennotiz',
-    customerId: '1',
-    customerName: 'Hofladen Müller GmbH',
-    description: 'Kunde bevorzugt natürliche Materialien (Holz, keine Kunststoffe). Budget flexibel.',
-    userId: '1',
-    userName: 'Michael Schmidt',
-    isPrivate: true,
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: '6',
-    type: 'visit',
-    title: 'Vor-Ort-Termin',
-    customerId: '1',
-    customerName: 'Hofladen Müller GmbH',
-    contactName: 'Hans Müller',
-    description: 'Standortbesichtigung für neue Filiale. Räumlichkeiten geprüft, Maße aufgenommen.',
-    userId: '3',
-    userName: 'Thomas Fischer',
-    duration: 90,
-    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
-
 
 // Format currency
 function formatCurrency(amount: number): string {
@@ -301,6 +107,16 @@ export function CustomerDetailPage({
 }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { projects } = useData();
+
+  // Filter projects for this customer
+  const customerProjects = useMemo(() => {
+    return projects.filter(p => p.customerId === customer.id);
+  }, [projects, customer.id]);
+
+  // Use real data from customer object or default to empty arrays
+  const customerLocations = customer.locations || [];
+  const customerContacts = customer.contacts || [];
 
   // Assuming ownerId is consistent with customer object
   const isOwner = customer.ownerId === currentUserId;
@@ -369,6 +185,7 @@ export function CustomerDetailPage({
 
                 {/* Customer Type */}
                 <Badge variant="outline">{customer.customerType}</Badge>
+                <Badge variant="outline">{customer.industry}</Badge>
 
                 {/* Owner */}
                 {currentUserRole === 'ADM' && !isOwner && (
@@ -455,7 +272,7 @@ export function CustomerDetailPage({
                   </div>
                   <div>
                     <p className="text-muted-foreground">Projekte</p>
-                    <p className="text-2xl font-bold">{mockMetrics.projects.active} laufend</p>
+                    <p className="text-2xl font-bold">{customerProjects.length} laufend</p>
                     <p className="text-muted-foreground">
                       {formatCurrency(mockMetrics.projects.totalVolume)} Volumen
                     </p>
@@ -472,7 +289,7 @@ export function CustomerDetailPage({
                     <div className="h-12 w-12 rounded-full bg-amber-100 dark:bg-amber-950/20 flex items-center justify-center">
                       <Euro className="h-6 w-6 text-amber-600" />
                     </div>
-                    <div>
+                  <div>
                       <p className="text-muted-foreground">Umsatz</p>
                       <p className="text-2xl font-bold">
                         {formatCurrency(mockMetrics.revenue.thisYear)}
@@ -510,7 +327,7 @@ export function CustomerDetailPage({
             <TabsTrigger value="overview">Übersicht</TabsTrigger>
             <TabsTrigger value="locations">Standorte ({customerLocations.length})</TabsTrigger>
             <TabsTrigger value="contacts">Kontakte ({customerContacts.length})</TabsTrigger>
-            <TabsTrigger value="opportunities">Opportunities ({customerOpportunities.length})</TabsTrigger>
+            <TabsTrigger value="opportunities">Opportunities (2)</TabsTrigger>
             <TabsTrigger value="projects">Projekte ({customerProjects.length})</TabsTrigger>
             <TabsTrigger value="protocols">Kontaktprotokoll</TabsTrigger>
           </TabsList>
@@ -653,7 +470,7 @@ export function CustomerDetailPage({
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">{customer.notes}</p>
+                  <p className="text-muted-foreground">{customer.notes || 'Keine Notizen vorhanden.'}</p>
                 </CardContent>
               </Card>
             </div>
@@ -668,7 +485,7 @@ export function CustomerDetailPage({
           </TabsContent>
 
           <TabsContent value="opportunities">
-             <OpportunityPipelineView userRole={currentUserRole === 'ADM' ? 'ADM' : 'GF'} initialOpportunities={customerOpportunities} />
+             <OpportunityPipelineView userRole={currentUserRole === 'ADM' ? 'ADM' : 'GF'} initialOpportunities={[]} />
           </TabsContent>
 
           <TabsContent value="projects">
@@ -676,7 +493,7 @@ export function CustomerDetailPage({
           </TabsContent>
 
           <TabsContent value="protocols">
-             <ActivityTimeline initialActivities={customerActivities} />
+             <ActivityTimeline initialActivities={[]} />
           </TabsContent>
         </Tabs>
       </div>
@@ -705,33 +522,10 @@ export function CustomerDetailPage({
 
 export function CustomerDetailPageDemo() {
   const [currentRole, setCurrentRole] = useState<UserRole>('PLAN');
+  const { customers } = useData();
+  const mockCustomer = customers[0]; // Use first customer from data provider
 
-  const mockCustomer: Customer = {
-    id: '1',
-    companyName: 'Hofladen Müller GmbH',
-    vatId: 'DE123456789',
-    customerType: 'Bestandskunde',
-    industry: 'Lebensmitteleinzelhandel',
-    rating: 'A',
-    status: 'active',
-    ownerId: '1',
-    owner: {
-      name: 'Michael Schmidt',
-      initials: 'MS',
-    },
-    email: 'info@hofladen-mueller.de',
-    phone: '+49 89 12345678',
-    website: 'https://www.hofladen-mueller.de',
-    billingAddress: {
-      street: 'Marktplatz 1',
-      postalCode: '80331',
-      city: 'München',
-      country: 'Deutschland',
-    },
-    notes: 'Kunde legt großen Wert auf regionale Produkte und nachhaltige Ladeneinrichtung.',
-    createdAt: '2023-05-15T10:00:00Z',
-    updatedAt: '2024-11-10T14:30:00Z',
-  };
+  if (!mockCustomer) return <div>Keine Kunden vorhanden</div>;
 
   return (
     <div className="space-y-6">
@@ -772,14 +566,8 @@ export function CustomerDetailPageDemo() {
         </CardContent>
       </Card>
 
-      <Separator />
-
-      <div className="border rounded-lg overflow-hidden">
-        <CustomerDetailPage
-          customer={mockCustomer}
-          currentUserRole={currentRole}
-          currentUserId="1"
-        />
+      <div className="border rounded-xl overflow-hidden shadow-lg h-[800px] overflow-y-auto">
+        <CustomerDetailPage customer={mockCustomer} currentUserRole={currentRole} currentUserId="1" onBack={() => toast.info('Zurück zur Liste')} />
       </div>
     </div>
   );

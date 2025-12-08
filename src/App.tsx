@@ -101,7 +101,17 @@ import { ProjectPortfolioDemo } from './components/ProjectPortfolioDemo';
 import { ContactDetailViewDemo } from './components/ContactDetailView';
 import { CustomerDetailPageDemo } from './components/CustomerDetailPage';
 import { OpportunityDetailViewDemo } from './components/OpportunityDetailView';
-import { ProjectDetailViewDemo } from './components/ProjectDetailView';
+import { Project, useData } from './components/providers/DataProvider';
+
+// Wrapper for demo display
+function ProjectDetailViewDemo() {
+    const { projects } = useData();
+    const project = projects[0]; // Use first project for demo
+
+    if (!project) return <div>Keine Projekte verfügbar</div>;
+
+    return <ProjectDetailView project={project} />;
+}
 import { OfferDetailViewDemo } from './components/OfferDetailView';
 import { ContractDetailViewDemo } from './components/ContractDetailView';
 import { ADMDashboardDemo } from './components/ADMDashboard';
@@ -129,25 +139,30 @@ import { FigmaImportTemplateDemo } from './components/FigmaImportTemplate';
 import { KompassApp } from './components/KompassApp';
 import { Button } from './components/ui/button'; // Ensure Button is imported
 
+import { DataProvider } from './components/providers/DataProvider';
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('full-app-demo');
 
   if (activeTab === 'full-app-demo') {
     return (
-      <ThemeProvider defaultTheme="system" storageKey="kompass-ui-theme">
-        <KompassApp />
-        <div className="fixed bottom-4 right-4 z-50">
-          <Button onClick={() => setActiveTab('error-states')} variant="outline" className="shadow-lg bg-background">
-            Zurück zur Muster-Bibliothek
-          </Button>
-        </div>
-      </ThemeProvider>
+      <DataProvider>
+          <ThemeProvider defaultTheme="system" storageKey="kompass-ui-theme">
+            <KompassApp />
+            <div className="fixed bottom-4 right-4 z-50">
+              <Button onClick={() => setActiveTab('error-states')} variant="outline" className="shadow-lg bg-background">
+                Zurück zur Muster-Bibliothek
+              </Button>
+            </div>
+          </ThemeProvider>
+      </DataProvider>
     );
   }
 
   return (
-    <ThemeProvider defaultTheme="system" storageKey="kompass-ui-theme">
-      <div className="min-h-screen bg-background p-8">
+    <DataProvider>
+      <ThemeProvider defaultTheme="system" storageKey="kompass-ui-theme">
+        <div className="min-h-screen bg-background p-8">
         <Toaster />
         <div className="max-w-7xl mx-auto">
           <div className="mb-8 flex items-start justify-between">
@@ -500,7 +515,11 @@ export default function App() {
             {activeTab === 'contact-detail-view' && <ContactDetailViewDemo />}
             {activeTab === 'customer-detail-page' && <CustomerDetailPageDemo />}
             {activeTab === 'opportunity-detail-view' && <OpportunityDetailViewDemo />}
-            {activeTab === 'project-detail-view' && <ProjectDetailViewDemo />}
+            {activeTab === 'project-detail-view' && (
+               <div className="bg-background">
+                   <ProjectDetailViewDemo />
+               </div>
+            )}
             {activeTab === 'offer-detail-view' && <OfferDetailViewDemo />}
             {activeTab === 'contract-detail-view' && <ContractDetailViewDemo />}
             {activeTab === 'adm-dashboard' && <ADMDashboardDemo />}
@@ -542,5 +561,6 @@ export default function App() {
         </div>
       </div>
     </ThemeProvider>
+    </DataProvider>
   );
 }

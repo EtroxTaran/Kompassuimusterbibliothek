@@ -55,242 +55,12 @@ import {
   FolderOpen,
 } from 'lucide-react';
 
+import { ProjectForm } from './ProjectFormDemo';
+import { InvoiceForm } from './InvoiceFormDemo';
+import { Project, TeamMember, Milestone, BudgetItem, TimeEntry, Document } from './providers/DataProvider';
+
 // User role type
 type UserRole = 'GF' | 'BUCH' | 'PLAN' | 'ADM' | 'KALK';
-
-// Project status type
-type ProjectStatus = 'planning' | 'in-progress' | 'on-hold' | 'completed' | 'archived';
-
-// Team member type
-interface TeamMember {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-  phone: string;
-  isProjectLead: boolean;
-  avatarUrl?: string;
-}
-
-// Milestone type
-interface Milestone {
-  id: string;
-  name: string;
-  date: string;
-  status: 'completed' | 'pending' | 'overdue';
-  description: string;
-}
-
-// Budget item type
-interface BudgetItem {
-  category: string;
-  planned: number;
-  actual: number;
-}
-
-// Time entry type
-interface TimeEntry {
-  id: string;
-  userId: string;
-  userName: string;
-  date: string;
-  hours: number;
-  description: string;
-}
-
-// Document type
-interface Document {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadedAt: string;
-  uploadedBy: string;
-}
-
-// Project type
-interface Project {
-  id: string;
-  number: string;
-  name: string;
-  customerId: string;
-  customerName: string;
-  status: ProjectStatus;
-  description: string;
-  opportunityId?: string;
-  opportunityTitle?: string;
-  startDate: string;
-  endDate: string;
-  progress: number;
-  contractValue: number;
-  budget: number;
-  margin: number;
-  projectLeadId: string;
-  team: TeamMember[];
-  milestones: Milestone[];
-  budgetBreakdown: BudgetItem[];
-  timeEntries: TimeEntry[];
-  documents: Document[];
-  createdAt: string;
-}
-
-// Mock project data
-const mockProject: Project = {
-  id: '1',
-  number: 'P-2024-B023',
-  name: 'REWE München Süd - Ladeneinrichtung',
-  customerId: '1',
-  customerName: 'REWE München Süd',
-  status: 'in-progress',
-  description:
-    'Komplette Ladeneinrichtung für neue REWE Filiale in München Süd. Umfasst Kühlsysteme, Regale, Beleuchtung, Kassensysteme und alle notwendigen Montagearbeiten. Projekt muss bis Ende Februar 2025 abgeschlossen sein für geplante Eröffnung im März.',
-  opportunityId: '1',
-  opportunityTitle: 'Ladeneinrichtung Neueröffnung',
-  startDate: '2024-12-01',
-  endDate: '2025-02-28',
-  progress: 65,
-  contractValue: 450000,
-  budget: 380000,
-  margin: 70000,
-  projectLeadId: '1',
-  team: [
-    {
-      id: '1',
-      name: 'Thomas Fischer',
-      role: 'Projektleiter',
-      email: 't.fischer@kompass.de',
-      phone: '+49 89 1234 5601',
-      isProjectLead: true,
-    },
-    {
-      id: '2',
-      name: 'Anna Weber',
-      role: 'Kalkulation',
-      email: 'a.weber@kompass.de',
-      phone: '+49 89 1234 5602',
-      isProjectLead: false,
-    },
-    {
-      id: '3',
-      name: 'Michael Schmidt',
-      role: 'Montage',
-      email: 'm.schmidt@kompass.de',
-      phone: '+49 89 1234 5603',
-      isProjectLead: false,
-    },
-    {
-      id: '4',
-      name: 'Sarah Müller',
-      role: 'Administration',
-      email: 's.mueller@kompass.de',
-      phone: '+49 89 1234 5604',
-      isProjectLead: false,
-    },
-  ],
-  milestones: [
-    {
-      id: '1',
-      name: 'Vertragsunterzeichnung',
-      date: '2024-12-01',
-      status: 'completed',
-      description: 'Vertrag mit Kunde unterzeichnet',
-    },
-    {
-      id: '2',
-      name: 'Planung abgeschlossen',
-      date: '2024-12-15',
-      status: 'completed',
-      description: 'Detailplanung und technische Zeichnungen fertiggestellt',
-    },
-    {
-      id: '3',
-      name: 'Material bestellt',
-      date: '2024-12-20',
-      status: 'completed',
-      description: 'Alle Materialien bei Lieferanten bestellt',
-    },
-    {
-      id: '4',
-      name: 'Montage begonnen',
-      date: '2025-01-08',
-      status: 'completed',
-      description: 'Beginn der Montagearbeiten vor Ort',
-    },
-    {
-      id: '5',
-      name: 'Kühlsysteme installiert',
-      date: '2025-01-22',
-      status: 'pending',
-      description: 'Installation aller Kühlsysteme',
-    },
-    {
-      id: '6',
-      name: 'Endabnahme',
-      date: '2025-02-25',
-      status: 'pending',
-      description: 'Finale Abnahme durch Kunden',
-    },
-  ],
-  budgetBreakdown: [
-    { category: 'Material', planned: 200000, actual: 185000 },
-    { category: 'Personal', planned: 120000, actual: 95000 },
-    { category: 'Fremdleistungen', planned: 50000, actual: 48000 },
-    { category: 'Sonstiges', planned: 10000, actual: 7500 },
-  ],
-  timeEntries: [
-    {
-      id: '1',
-      userId: '1',
-      userName: 'Thomas Fischer',
-      date: '2025-01-10',
-      hours: 8,
-      description: 'Projektleitung, Baustellenbegehung',
-    },
-    {
-      id: '2',
-      userId: '3',
-      userName: 'Michael Schmidt',
-      date: '2025-01-10',
-      hours: 9,
-      description: 'Montagearbeiten Regalaufbau',
-    },
-    {
-      id: '3',
-      userId: '1',
-      userName: 'Thomas Fischer',
-      date: '2025-01-11',
-      hours: 6,
-      description: 'Abstimmung mit Kunde, Materialprüfung',
-    },
-  ],
-  documents: [
-    {
-      id: '1',
-      name: 'Vertrag_REWE_München_Süd.pdf',
-      type: 'Vertrag',
-      size: '1.2 MB',
-      uploadedAt: '2024-12-01',
-      uploadedBy: 'Thomas Fischer',
-    },
-    {
-      id: '2',
-      name: 'Technische_Planung.dwg',
-      type: 'Plan',
-      size: '8.5 MB',
-      uploadedAt: '2024-12-15',
-      uploadedBy: 'Anna Weber',
-    },
-    {
-      id: '3',
-      name: 'Fortschrittsbericht_KW02.pdf',
-      type: 'Bericht',
-      size: '450 KB',
-      uploadedAt: '2025-01-12',
-      uploadedBy: 'Thomas Fischer',
-    },
-  ],
-  createdAt: '2024-12-01',
-};
 
 // Format currency
 function formatCurrency(amount: number): string {
@@ -326,19 +96,27 @@ function elapsedPercentage(startDate: string, endDate: string): number {
 }
 
 // Project Detail View
-function ProjectDetailView({
-  project = mockProject,
+export function ProjectDetailView({
+  project,
   currentUserRole = 'PLAN',
   currentUserId = '1',
 }: {
-  project?: Project;
+  project: Project;
   currentUserRole?: UserRole;
   currentUserId?: string;
 }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [showTimeDialog, setShowTimeDialog] = useState(false);
+  const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
 
-  const isTeamMember = project.team.some((member) => member.id === currentUserId);
+  // Normalize data for view
+  const team = project.team || [];
+  const milestones = Array.isArray(project.milestones) ? project.milestones : [];
+  const budgetBreakdown = project.budgetBreakdown || [];
+  const timeEntries = project.timeEntries || [];
+  const documents = project.documents || [];
+
+  const isTeamMember = team.some((member) => member.id === currentUserId);
   const canEdit =
     currentUserRole === 'GF' ||
     currentUserRole === 'PLAN' ||
@@ -350,14 +128,18 @@ function ProjectDetailView({
     currentUserRole === 'PLAN' ||
     currentUserRole === 'KALK';
 
-  const completedMilestones = project.milestones.filter((m) => m.status === 'completed').length;
-  const totalMilestones = project.milestones.length;
-  const marginPercentage = ((project.margin / project.contractValue) * 100).toFixed(1);
+  const completedMilestones = milestones.filter((m) => m.status === 'completed').length;
+  const totalMilestones = milestones.length > 0 ? milestones.length : (project.milestones as any).total || 0;
+  
+  const margin = project.margin || 0;
+  const contractValue = project.contractValue || project.budget * 1.2; // Fallback
+  const marginPercentage = contractValue > 0 ? ((margin / contractValue) * 100).toFixed(1) : '0.0';
+  
   const timelineElapsed = elapsedPercentage(project.startDate, project.endDate);
   const remainingDays = daysRemaining(project.endDate);
 
-  const totalBudgetPlanned = project.budgetBreakdown.reduce((sum, item) => sum + item.planned, 0);
-  const totalBudgetActual = project.budgetBreakdown.reduce((sum, item) => sum + item.actual, 0);
+  const totalBudgetPlanned = budgetBreakdown.reduce((sum, item) => sum + item.planned, 0) || project.budget;
+  const totalBudgetActual = budgetBreakdown.reduce((sum, item) => sum + item.actual, 0) || project.actualCost || 0;
   const budgetRemaining = totalBudgetPlanned - totalBudgetActual;
   const budgetHealth =
     totalBudgetActual / totalBudgetPlanned < 0.8
@@ -366,7 +148,7 @@ function ProjectDetailView({
       ? 'warning'
       : 'critical';
 
-  const totalHours = project.timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
+  const totalHours = timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
 
   const handleTimeTracking = () => {
     toast.success('Zeit erfasst', {
@@ -379,13 +161,13 @@ function ProjectDetailView({
     switch (project.status) {
       case 'planning':
         return <Badge variant="secondary">Planung</Badge>;
-      case 'in-progress':
+      case 'inProgress':
         return (
           <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400">
             In Bearbeitung
           </Badge>
         );
-      case 'on-hold':
+      case 'paused':
         return <Badge variant="outline">Pausiert</Badge>;
       case 'completed':
         return (
@@ -393,8 +175,10 @@ function ProjectDetailView({
             Abgeschlossen
           </Badge>
         );
-      case 'archived':
-        return <Badge variant="secondary">Archiviert</Badge>;
+      case 'cancelled':
+        return <Badge variant="destructive">Storniert</Badge>;
+      case 'new':
+        return <Badge variant="outline">Neu</Badge>;
       default:
         return null;
     }
@@ -432,7 +216,7 @@ function ProjectDetailView({
                 className="inline-flex items-center gap-1 text-primary hover:underline"
               >
                 <Building2 className="h-4 w-4" />
-                {project.customerName}
+                {project.customer}
                 <ExternalLink className="h-3 w-3" />
               </a>
             </div>
@@ -441,17 +225,22 @@ function ProjectDetailView({
             <div className="flex flex-wrap gap-2">
               {canEdit && (
                 <>
-                  <Button variant="outline">
-                    <Edit className="mr-2 h-4 w-4" />
-                    Bearbeiten
-                  </Button>
+                  <ProjectForm 
+                    isEdit={true}
+                    customTrigger={
+                      <Button variant="outline">
+                        <Edit className="mr-2 h-4 w-4" />
+                        Bearbeiten
+                      </Button>
+                    }
+                  />
                   <Button variant="outline" onClick={() => setShowTimeDialog(true)}>
                     <Clock className="mr-2 h-4 w-4" />
                     Zeiterfassung
                   </Button>
                 </>
               )}
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => toast.info('Bericht wird generiert...')}>
                 <FileText className="mr-2 h-4 w-4" />
                 Bericht
               </Button>
@@ -528,7 +317,7 @@ function ProjectDetailView({
                   </div>
                   <p className="text-muted-foreground mb-1">Auftragswert</p>
                   <p className="text-3xl font-bold text-primary">
-                    {formatCurrency(project.contractValue)}
+                    {formatCurrency(contractValue)}
                   </p>
                 </CardContent>
               </Card>
@@ -562,7 +351,7 @@ function ProjectDetailView({
                     </div>
                     <p className="text-muted-foreground mb-1">Marge</p>
                     <p className="text-3xl font-bold text-green-600">
-                      {formatCurrency(project.margin)}
+                      {formatCurrency(margin)}
                     </p>
                     <p className="text-green-600">+{marginPercentage}%</p>
                   </CardContent>
@@ -611,7 +400,7 @@ function ProjectDetailView({
                     <CardTitle>Projektbeschreibung</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">{project.description}</p>
+                    <p className="text-muted-foreground">{project.description || 'Keine Beschreibung verfügbar.'}</p>
                   </CardContent>
                 </Card>
 
@@ -675,7 +464,7 @@ function ProjectDetailView({
                     <CardTitle>Projektleiter</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {project.team
+                    {team.length > 0 ? team
                       .filter((member) => member.isProjectLead)
                       .map((lead) => (
                         <div key={lead.id} className="flex items-center gap-4">
@@ -708,7 +497,17 @@ function ProjectDetailView({
                             </div>
                           </div>
                         </div>
-                      ))}
+                      )) : (
+                        <div className="flex items-center gap-4">
+                            <Avatar className="h-16 w-16">
+                                <AvatarFallback className="text-xl">{project.manager.initials}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                                <p className="font-semibold">{project.manager.name}</p>
+                                <p className="text-muted-foreground">Projektleiter</p>
+                            </div>
+                        </div>
+                      )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -720,7 +519,7 @@ function ProjectDetailView({
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle>Team-Mitglieder</CardTitle>
-                        <CardDescription>{project.team.length} Mitglieder</CardDescription>
+                        <CardDescription>{team.length} Mitglieder</CardDescription>
                       </div>
                       {canEdit && (
                         <Button size="sm">
@@ -732,7 +531,7 @@ function ProjectDetailView({
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {project.team.map((member) => (
+                      {team.length > 0 ? team.map((member) => (
                         <div
                           key={member.id}
                           className="flex items-center gap-4 p-4 border border-border rounded-lg"
@@ -764,7 +563,9 @@ function ProjectDetailView({
                             </div>
                           </div>
                         </div>
-                      ))}
+                      )) : (
+                        <p className="text-muted-foreground text-center py-4">Keine detaillierten Teamdaten verfügbar.</p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -775,12 +576,7 @@ function ProjectDetailView({
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Meilensteine</CardTitle>
-                        <CardDescription>
-                          {completedMilestones} von {totalMilestones} abgeschlossen
-                        </CardDescription>
-                      </div>
+                      <CardTitle>Meilensteine</CardTitle>
                       {canEdit && (
                         <Button size="sm">
                           <Plus className="mr-2 h-4 w-4" />
@@ -790,60 +586,38 @@ function ProjectDetailView({
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {project.milestones.map((milestone, index) => {
-                        const isLast = index === project.milestones.length - 1;
-                        return (
-                          <div key={milestone.id} className="flex gap-4">
-                            <div className="flex flex-col items-center">
-                              <div
-                                className={`h-10 w-10 rounded-full flex items-center justify-center border-2 flex-shrink-0 ${
-                                  milestone.status === 'completed'
-                                    ? 'bg-green-600 border-green-600 text-white'
-                                    : milestone.status === 'overdue'
-                                    ? 'bg-red-600 border-red-600 text-white'
-                                    : 'bg-background border-muted-foreground/30 text-muted-foreground'
-                                }`}
-                              >
-                                {milestone.status === 'completed' ? (
-                                  <CheckCircle className="h-5 w-5" />
-                                ) : (
-                                  <Circle className="h-5 w-5" />
-                                )}
-                              </div>
-                              {!isLast && (
-                                <div
-                                  className={`w-0.5 flex-1 mt-2 min-h-[40px] ${
-                                    milestone.status === 'completed'
-                                      ? 'bg-green-600'
-                                      : 'bg-border'
-                                  }`}
-                                />
-                              )}
-                            </div>
-                            <div className="flex-1 pb-6">
-                              <div className="flex items-center justify-between mb-1">
-                                <h4>{milestone.name}</h4>
-                                {milestone.status === 'completed' && (
-                                  <Badge className="bg-green-100 text-green-800 dark:bg-green-950/20 dark:text-green-400">
-                                    Abgeschlossen
-                                  </Badge>
-                                )}
-                                {milestone.status === 'pending' && (
-                                  <Badge variant="outline">Ausstehend</Badge>
-                                )}
-                                {milestone.status === 'overdue' && (
-                                  <Badge variant="destructive">Überfällig</Badge>
-                                )}
-                              </div>
-                              <p className="text-muted-foreground mb-1">
-                                {formatDate(milestone.date)}
-                              </p>
-                              <p className="text-muted-foreground">{milestone.description}</p>
-                            </div>
+                    <div className="relative border-l border-border ml-3 space-y-8 pl-8 py-2">
+                      {milestones.length > 0 ? milestones.map((milestone) => (
+                        <div key={milestone.id} className="relative">
+                          <span
+                            className={`absolute -left-[41px] flex h-6 w-6 items-center justify-center rounded-full border ring-4 ring-background ${
+                              milestone.status === 'completed'
+                                ? 'bg-green-500 border-green-500 text-white'
+                                : milestone.status === 'overdue'
+                                ? 'bg-red-500 border-red-500 text-white'
+                                : 'bg-background border-muted-foreground'
+                            }`}
+                          >
+                            {milestone.status === 'completed' && <CheckCircle className="h-4 w-4" />}
+                          </span>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
+                            <h3 className="font-semibold leading-none">{milestone.name}</h3>
+                            <time className="text-sm text-muted-foreground">{formatDate(milestone.date)}</time>
                           </div>
-                        );
-                      })}
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {milestone.description}
+                          </p>
+                          {milestone.status === 'overdue' && (
+                            <Badge variant="destructive">Überfällig</Badge>
+                          )}
+                        </div>
+                      )) : (
+                          <div className="text-muted-foreground">
+                              {project.milestones && 'total' in project.milestones ? 
+                                `${project.milestones.completed} von ${project.milestones.total} Meilensteinen abgeschlossen (keine Details verfügbar)` 
+                                : 'Keine Meilensteine'}
+                          </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -852,72 +626,53 @@ function ProjectDetailView({
               {/* Budget Tab */}
               {canViewFinancials && (
                 <TabsContent value="budget" className="space-y-6 mt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Budget-Übersicht</CardTitle>
-                      <CardDescription>
-                        Geplant: {formatCurrency(totalBudgetPlanned)} • Ist:{' '}
-                        {formatCurrency(totalBudgetActual)}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div
-                        className={`p-4 rounded-lg border ${
-                          budgetHealth === 'good'
-                            ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900'
-                            : budgetHealth === 'warning'
-                            ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900'
-                            : 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <AlertCircle
-                            className={`h-5 w-5 ${
-                              budgetHealth === 'good'
-                                ? 'text-green-600'
-                                : budgetHealth === 'warning'
-                                ? 'text-amber-600'
-                                : 'text-red-600'
-                            }`}
-                          />
-                          <p className="font-semibold">
-                            {budgetHealth === 'good'
-                              ? 'Budget in gutem Zustand'
-                              : budgetHealth === 'warning'
-                              ? 'Budget-Warnung'
-                              : 'Budget kritisch'}
-                          </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card>
+                        <CardHeader><CardTitle>Budget Übersicht</CardTitle></CardHeader>
+                        <CardContent>
+                             <div className="space-y-4">
+                                <div className="flex justify-between items-center pb-2 border-b">
+                                    <span className="font-medium">Budget Gesamt</span>
+                                    <span>{formatCurrency(totalBudgetPlanned)}</span>
+                                </div>
+                                <div className="flex justify-between items-center pb-2 border-b">
+                                    <span className="font-medium">Kosten Aktuell</span>
+                                    <span>{formatCurrency(totalBudgetActual)}</span>
+                                </div>
+                                <div className="flex justify-between items-center font-bold text-lg">
+                                    <span>Verbleibend</span>
+                                    <span className={budgetRemaining < 0 ? 'text-red-500' : 'text-green-500'}>{formatCurrency(budgetRemaining)}</span>
+                                </div>
+                             </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Kostenaufstellung</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          {budgetBreakdown.map((item, index) => (
+                            <div key={index} className="space-y-1">
+                              <div className="flex justify-between text-sm">
+                                <span>{item.category}</span>
+                                <span className="text-muted-foreground">
+                                  {formatCurrency(item.actual)} / {formatCurrency(item.planned)}
+                                </span>
+                              </div>
+                              <Progress
+                                value={(item.actual / item.planned) * 100}
+                                className={`h-2 ${
+                                  item.actual > item.planned ? 'text-red-500' : ''
+                                }`}
+                              />
+                            </div>
+                          ))}
+                          {budgetBreakdown.length === 0 && <p className="text-muted-foreground">Keine Details verfügbar</p>}
                         </div>
-                        <p className="text-muted-foreground">
-                          {((totalBudgetActual / totalBudgetPlanned) * 100).toFixed(1)}% des Budgets
-                          verbraucht
-                        </p>
-                      </div>
-
-                      <Separator />
-
-                      {project.budgetBreakdown.map((item) => {
-                        const percentage = (item.actual / item.planned) * 100;
-                        return (
-                          <div key={item.category}>
-                            <div className="flex justify-between mb-2">
-                              <span className="font-medium">{item.category}</span>
-                              <span className="text-muted-foreground">
-                                {formatCurrency(item.actual)} / {formatCurrency(item.planned)}
-                              </span>
-                            </div>
-                            <Progress value={percentage} className="h-3" />
-                            <div className="flex justify-between mt-1 text-muted-foreground">
-                              <span>{percentage.toFixed(1)}%</span>
-                              <span>
-                                {formatCurrency(item.planned - item.actual)} verbleibend
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </TabsContent>
               )}
 
@@ -928,51 +683,39 @@ function ProjectDetailView({
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle>Zeiterfassung</CardTitle>
-                        <CardDescription>
-                          Gesamt: {totalHours} Stunden erfasst
-                        </CardDescription>
+                        <CardDescription>{totalHours} Stunden gesamt</CardDescription>
                       </div>
-                      {canEdit && (
-                        <Button size="sm" onClick={() => setShowTimeDialog(true)}>
-                          <Plus className="mr-2 h-4 w-4" />
-                          Zeit erfassen
-                        </Button>
-                      )}
+                      <Button onClick={() => setShowTimeDialog(true)}>
+                        <Clock className="mr-2 h-4 w-4" />
+                        Zeit erfassen
+                      </Button>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="border-b border-border bg-muted/50">
-                          <tr>
-                            <th className="px-4 py-3 text-left">Benutzer</th>
-                            <th className="px-4 py-3 text-left">Datum</th>
-                            <th className="px-4 py-3 text-right">Stunden</th>
-                            <th className="px-4 py-3 text-left">Beschreibung</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {project.timeEntries.map((entry) => (
-                            <tr key={entry.id} className="border-b border-border">
-                              <td className="px-4 py-3">{entry.userName}</td>
-                              <td className="px-4 py-3">{formatDate(entry.date)}</td>
-                              <td className="px-4 py-3 text-right">{entry.hours}</td>
-                              <td className="px-4 py-3 text-muted-foreground">
-                                {entry.description}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="border-t-2 border-border bg-muted/30">
-                          <tr>
-                            <td className="px-4 py-3 font-semibold" colSpan={2}>
-                              Gesamt
-                            </td>
-                            <td className="px-4 py-3 text-right font-semibold">{totalHours}</td>
-                            <td className="px-4 py-3"></td>
-                          </tr>
-                        </tfoot>
-                      </table>
+                    <div className="space-y-4">
+                      {timeEntries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="flex items-center justify-between p-4 border rounded-lg"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <User className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="font-medium">{entry.userName}</p>
+                              <p className="text-sm text-muted-foreground">{entry.description}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold">{entry.hours} Std.</p>
+                            <p className="text-sm text-muted-foreground">
+                              {formatDate(entry.date)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                       {timeEntries.length === 0 && <p className="text-muted-foreground text-center py-4">Keine Zeiteinträge verfügbar.</p>}
                     </div>
                   </CardContent>
                 </Card>
@@ -983,45 +726,37 @@ function ProjectDetailView({
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle>Dokumente</CardTitle>
-                        <CardDescription>
-                          {project.documents.length}{' '}
-                          {project.documents.length === 1 ? 'Dokument' : 'Dokumente'}
-                        </CardDescription>
-                      </div>
-                      {canEdit && (
-                        <Button size="sm">
-                          <Upload className="mr-2 h-4 w-4" />
-                          Hochladen
-                        </Button>
-                      )}
+                      <CardTitle>Dokumente</CardTitle>
+                      <Button variant="outline">
+                        <Upload className="mr-2 h-4 w-4" />
+                        Hochladen
+                      </Button>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      {project.documents.map((doc) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {documents.map((doc) => (
                         <div
                           key={doc.id}
-                          className="flex items-center justify-between p-3 border border-border rounded-lg"
+                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
                         >
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className="h-10 w-10 rounded bg-accent/60 flex items-center justify-center">
-                              <FileText className="h-5 w-5 text-primary" />
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                              <FileText className="h-5 w-5 text-blue-600" />
                             </div>
-                            <div className="flex-1">
-                              <p className="font-medium">{doc.name}</p>
-                              <p className="text-muted-foreground">
-                                {doc.type} • {doc.size} • {formatDate(doc.uploadedAt)} • von{' '}
-                                {doc.uploadedBy}
+                            <div>
+                              <p className="font-medium truncate max-w-[200px]">{doc.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {doc.type} • {doc.size}
                               </p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="icon">
                             <Download className="h-4 w-4" />
                           </Button>
                         </div>
                       ))}
+                      {documents.length === 0 && <p className="text-muted-foreground text-center py-4 col-span-2">Keine Dokumente verfügbar.</p>}
                     </div>
                   </CardContent>
                 </Card>
@@ -1029,166 +764,66 @@ function ProjectDetailView({
             </Tabs>
           </div>
 
-          {/* Right Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-6 space-y-6">
-              {/* Quick Info */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Schnellinfo</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Status</span>
-                    {getStatusBadge()}
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Fortschritt</span>
-                    <span className="font-semibold">{project.progress}%</span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Verbleibend</span>
-                    <span className="font-semibold">{remainingDays} Tage</span>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Team</span>
-                    <span className="font-semibold">{project.team.length} Mitarbeiter</span>
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Right Column - Activity & Quick Actions */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Schnellzugriff</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-2">
+                <Button variant="outline" className="justify-start">
+                  <Mail className="mr-2 h-4 w-4" />
+                  E-Mail an Team
+                </Button>
+                <Button variant="outline" className="justify-start">
+                  <Phone className="mr-2 h-4 w-4" />
+                  Projektleiter anrufen
+                </Button>
+                <Button variant="outline" className="justify-start">
+                  <FolderOpen className="mr-2 h-4 w-4" />
+                  Projektordner öffnen
+                </Button>
+              </CardContent>
+            </Card>
 
-              {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Schnellaktionen</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {canEdit && (
-                    <Button
-                      className="w-full"
-                      variant="outline"
-                      onClick={() => setShowTimeDialog(true)}
-                    >
-                      <Timer className="mr-2 h-4 w-4" />
-                      Zeit erfassen
-                    </Button>
-                  )}
-                  <Button className="w-full" variant="outline">
-                    <FileBarChart className="mr-2 h-4 w-4" />
-                    Bericht erstellen
-                  </Button>
-                  {canViewFinancials && (
-                    <Button className="w-full" variant="outline">
-                      <Receipt className="mr-2 h-4 w-4" />
-                      Rechnung erstellen
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Aktivitäten</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Status geändert</p>
+                      <p className="text-xs text-muted-foreground">
+                        Von "Planung" zu "In Bearbeitung"
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">Vor 2 Tagen</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Dokument hochgeladen</p>
+                      <p className="text-xs text-muted-foreground">Vertrag_Signed.pdf</p>
+                      <p className="text-xs text-muted-foreground mt-1">Vor 5 Tagen</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Neuer Meilenstein</p>
+                      <p className="text-xs text-muted-foreground">Material bestellt</p>
+                      <p className="text-xs text-muted-foreground mt-1">Vor 1 Woche</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-
-      {/* Time Tracking Dialog */}
-      <Dialog open={showTimeDialog} onOpenChange={setShowTimeDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Zeit erfassen</DialogTitle>
-            <DialogDescription>
-              Erfassen Sie Ihre Arbeitszeit für dieses Projekt
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="time-date">Datum</Label>
-              <Input id="time-date" type="date" />
-            </div>
-            <div>
-              <Label htmlFor="time-hours">Stunden</Label>
-              <Input id="time-hours" type="number" step="0.5" placeholder="8.0" />
-            </div>
-            <div>
-              <Label htmlFor="time-description">Beschreibung</Label>
-              <Textarea
-                id="time-description"
-                placeholder="Was haben Sie gemacht?"
-                rows={3}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowTimeDialog(false)}>
-              Abbrechen
-            </Button>
-            <Button onClick={handleTimeTracking}>
-              <Clock className="mr-2 h-4 w-4" />
-              Zeit erfassen
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-// Demo wrapper
-export function ProjectDetailViewDemo() {
-  const [currentRole, setCurrentRole] = useState<UserRole>('PLAN');
-
-  return (
-    <div className="space-y-6">
-      {/* Role Switcher for Demo */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Projektdetails - Rollenansicht</CardTitle>
-          <CardDescription>
-            Wechseln Sie zwischen Rollen, um unterschiedliche Berechtigungen zu sehen
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            <Button
-              variant={currentRole === 'GF' ? 'default' : 'outline'}
-              onClick={() => setCurrentRole('GF')}
-            >
-              GF (Voller Zugriff)
-            </Button>
-            <Button
-              variant={currentRole === 'PLAN' ? 'default' : 'outline'}
-              onClick={() => setCurrentRole('PLAN')}
-            >
-              PLAN (Voller Zugriff)
-            </Button>
-            <Button
-              variant={currentRole === 'BUCH' ? 'default' : 'outline'}
-              onClick={() => setCurrentRole('BUCH')}
-            >
-              BUCH (Finanzen)
-            </Button>
-            <Button
-              variant={currentRole === 'ADM' ? 'default' : 'outline'}
-              onClick={() => setCurrentRole('ADM')}
-            >
-              ADM (Zugewiesen)
-            </Button>
-            <Button
-              variant={currentRole === 'KALK' ? 'default' : 'outline'}
-              onClick={() => setCurrentRole('KALK')}
-            >
-              KALK (Zugewiesen)
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      {/* Project Detail View */}
-      <ProjectDetailView currentUserRole={currentRole} />
     </div>
   );
 }

@@ -48,37 +48,8 @@ import {
   HelpCircle,
 } from 'lucide-react';
 
-// Contact types
-export type DecisionRole =
-  | 'decision-maker'
-  | 'key-influencer'
-  | 'recommender'
-  | 'gatekeeper'
-  | 'operational'
-  | 'informational';
-
-export type AuthorityLevel = 'low' | 'medium' | 'high' | 'final';
-
-export interface Contact {
-  id: string;
-  firstName: string;
-  lastName: string;
-  title?: string;
-  position: string;
-  decisionRole: DecisionRole;
-  authorityLevel: AuthorityLevel;
-  approvalLimit?: number;
-  phone?: string;
-  mobile?: string;
-  email: string;
-  preferredContact: 'email' | 'phone' | 'mobile';
-  functions?: string[];
-  assignedLocations: string[];
-  isPrimaryContact?: boolean;
-  primaryForLocations?: string[];
-  lastActivity?: string; // ISO date
-  canApprove?: boolean;
-}
+import { ContactForm } from './ContactFormDemo';
+import { Contact, DecisionRole, AuthorityLevel, useData } from './providers/DataProvider';
 
 // Decision role config
 export const decisionRoleConfig: Record<
@@ -128,92 +99,6 @@ export const decisionRoleConfig: Record<
     icon: AlertCircle,
   },
 };
-
-// Sample contacts
-const sampleContacts: Contact[] = [
-  {
-    id: '1',
-    firstName: 'Hans',
-    lastName: 'Müller',
-    title: 'Dr.',
-    position: 'Geschäftsführer',
-    decisionRole: 'decision-maker',
-    authorityLevel: 'final',
-    approvalLimit: 50000,
-    mobile: '+49-170-1234567',
-    phone: '+49-89-1234567',
-    email: 'h.mueller@hofladen-mueller.de',
-    preferredContact: 'email',
-    assignedLocations: ['Filiale München Süd', 'Hauptsitz'],
-    isPrimaryContact: true,
-    primaryForLocations: ['Filiale München Süd', 'Hauptsitz'],
-    lastActivity: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    canApprove: true,
-  },
-  {
-    id: '2',
-    firstName: 'Maria',
-    lastName: 'Schmidt',
-    position: 'Einkaufsleiterin',
-    decisionRole: 'key-influencer',
-    authorityLevel: 'high',
-    approvalLimit: 20000,
-    phone: '+49-89-9876543',
-    email: 'm.schmidt@hofladen-mueller.de',
-    preferredContact: 'phone',
-    functions: ['Einkaufsleiterin', 'Filialmanagement'],
-    assignedLocations: ['Hauptsitz'],
-    isPrimaryContact: true,
-    primaryForLocations: ['Hauptsitz'],
-    lastActivity: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    canApprove: true,
-  },
-  {
-    id: '3',
-    firstName: 'Thomas',
-    lastName: 'Weber',
-    position: 'Filialleiter',
-    decisionRole: 'recommender',
-    authorityLevel: 'medium',
-    approvalLimit: 5000,
-    mobile: '+49-175-5555555',
-    email: 't.weber@hofladen-mueller.de',
-    preferredContact: 'mobile',
-    functions: ['Filialleiter'],
-    assignedLocations: ['Filiale München Süd'],
-    lastActivity: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    canApprove: true,
-  },
-  {
-    id: '4',
-    firstName: 'Anna',
-    lastName: 'Fischer',
-    position: 'Assistenz der Geschäftsführung',
-    decisionRole: 'gatekeeper',
-    authorityLevel: 'medium',
-    phone: '+49-89-1234568',
-    email: 'a.fischer@hofladen-mueller.de',
-    preferredContact: 'email',
-    assignedLocations: ['Hauptsitz'],
-    lastActivity: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    canApprove: false,
-  },
-  {
-    id: '5',
-    firstName: 'Klaus',
-    lastName: 'Becker',
-    position: 'Lagerleiter',
-    decisionRole: 'operational',
-    authorityLevel: 'low',
-    mobile: '+49-176-7777777',
-    email: 'k.becker@hofladen-mueller.de',
-    preferredContact: 'mobile',
-    functions: ['Lagerleiter', 'Logistik'],
-    assignedLocations: ['Hauptsitz', 'Filiale München Süd'],
-    lastActivity: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-    canApprove: false,
-  },
-];
 
 // Format currency
 function formatCurrency(amount: number): string {
@@ -496,16 +381,20 @@ export function ContactCard({
               >
                 <Eye className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => toast.info('Bearbeiten')}
-                disabled={isRestricted}
-              >
-                <Pencil className="h-4 w-4" />
-                {isRestricted && <Lock className="h-2 w-2 absolute top-1 right-1" />}
-              </Button>
+              <ContactForm 
+                isEdit={true}
+                customTrigger={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={isRestricted}
+                  >
+                    <Pencil className="h-4 w-4" />
+                    {isRestricted && <Lock className="h-2 w-2 absolute top-1 right-1" />}
+                  </Button>
+                }
+              />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -547,7 +436,9 @@ export function ContactCard({
 
 // Full Contact List View
 export function ContactListView({ initialContacts }: { initialContacts?: Contact[] }) {
-  const [contacts] = useState(initialContacts || sampleContacts);
+  const { customers } = useData();
+  // Use initialContacts if provided, otherwise fallback to first customer's contacts for demo
+  const [contacts] = useState(initialContacts || (customers[0]?.contacts || []));
   const [filter, setFilter] = useState<'all' | 'decision-makers' | 'primary'>('all');
   const [sortBy, setSortBy] = useState('name');
 
@@ -592,13 +483,10 @@ export function ContactListView({ initialContacts }: { initialContacts?: Contact
         <div>
           <h3>Kontakte</h3>
           <p className="text-sm text-muted-foreground">
-            Hofladen Müller GmbH • {contacts.length} Kontaktpersonen
+            Kontaktpersonen Übersicht • {contacts.length} Kontaktpersonen
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Kontakt hinzufügen
-        </Button>
+        <ContactForm />
       </div>
 
       {/* Filter Bar */}
@@ -663,7 +551,7 @@ export function ContactListView({ initialContacts }: { initialContacts?: Contact
 }
 
 // Decision Role Legend
-function DecisionRoleLegend() {
+export function DecisionRoleLegend() {
   return (
     <div className="space-y-4">
       <h4 className="mb-4">Entscheidungsrollen</h4>
@@ -702,7 +590,7 @@ function DecisionRoleLegend() {
 }
 
 // Authority Level Examples
-function AuthorityLevelExamples() {
+export function AuthorityLevelExamples() {
   const levels: { level: AuthorityLevel; label: string; description: string }[] = [
     {
       level: 'final',
@@ -743,8 +631,11 @@ function AuthorityLevelExamples() {
 }
 
 // Single Contact Card Demo
-function SingleContactDemo() {
-  const contact = sampleContacts[0]; // Dr. Hans Müller
+export function SingleContactDemo() {
+  const { customers } = useData();
+  const contact = customers[0]?.contacts?.[0]; // First contact of first customer
+
+  if (!contact) return <div>Kein Kontakt verfügbar</div>;
 
   return (
     <div className="space-y-4">
@@ -763,8 +654,11 @@ function SingleContactDemo() {
 }
 
 // RBAC Restricted Contact Demo
-function RestrictedContactDemo() {
-  const contact = sampleContacts[0];
+export function RestrictedContactDemo() {
+  const { customers } = useData();
+  const contact = customers[0]?.contacts?.[0];
+
+  if (!contact) return <div>Kein Kontakt verfügbar</div>;
 
   return (
     <div className="space-y-4">
@@ -783,138 +677,5 @@ function RestrictedContactDemo() {
 }
 
 export function ContactListDemo() {
-  return (
-    <div className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Vollständige Kontaktliste</CardTitle>
-          <CardDescription>
-            Kontaktpersonen mit Entscheidungsrollen, Autorität, Filter und Sortierung
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ContactListView />
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Einzelne Kontaktkarte</CardTitle>
-          <CardDescription>
-            Kontaktkarte mit allen Details: Entscheidungsrolle, Autorität, Genehmigungslimit
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <SingleContactDemo />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Entscheidungsrollen</CardTitle>
-          <CardDescription>
-            6 verschiedene Rollen mit Farb- und Icon-Kodierung
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DecisionRoleLegend />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Autoritätsstufen</CardTitle>
-          <CardDescription>
-            4 Stufen von Niedrig bis Finale Autorität (Krone)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AuthorityLevelExamples />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>RBAC-Einschränkung</CardTitle>
-          <CardDescription>
-            ADM-Benutzer können Entscheidungsrollen nicht bearbeiten
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RestrictedContactDemo />
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      <div>
-        <h4 className="mb-4">Design-Richtlinien</h4>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Kontaktkarte</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• 360px Breite (Desktop)</li>
-              <li>• Avatar 56px mit Status</li>
-              <li>• Entscheidungsrolle Badge</li>
-              <li>• Autoritätsstufe (Sterne/Krone)</li>
-              <li>• Hover: Shadow + Border</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Entscheidungsrollen</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Entscheidungsträger (Blau)</li>
-              <li>• Schlüsselbeeinflusser (Lila)</li>
-              <li>• Empfehler (Grün)</li>
-              <li>• Gatekeeper (Amber)</li>
-              <li>• Operativ (Grau)</li>
-              <li>• Informativ (Hellgrau)</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Autorität</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• 👑 Finale Autorität</li>
-              <li>• ⭐⭐⭐ Hoch (3 Sterne)</li>
-              <li>• ⭐⭐ Mittel (2 Sterne)</li>
-              <li>• ⭐ Niedrig (1 Stern)</li>
-              <li>• Tooltip mit Erklärung</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Kontaktinfo</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Mobil-/Telefonnummer</li>
-              <li>• E-Mail-Adresse</li>
-              <li>• Bevorzugt: Badge</li>
-              <li>• Unterstrichen</li>
-              <li>• Icons links</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Genehmigung</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Farbiger Hintergrund</li>
-              <li>• Shield Icon</li>
-              <li>• "Kann genehmigen"</li>
-              <li>• Limit in €</li>
-              <li>• Hilfe-Tooltip</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Filter & Sort</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Alle / Entscheider / Primär</li>
-              <li>• Nach Name sortieren</li>
-              <li>• Nach Autorität</li>
-              <li>• Nach Rolle</li>
-              <li>• Tab-Navigation</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    return <ContactListView />;
 }

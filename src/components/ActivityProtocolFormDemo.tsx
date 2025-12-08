@@ -122,14 +122,31 @@ const templates = [
 ];
 
 // Desktop Dialog Form
-export function ActivityFormDialog({ trigger }: { trigger?: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
-  const [activityType, setActivityType] = useState('call');
-  const [customer, setCustomer] = useState('1');
+export function ActivityFormDialog({ 
+  trigger,
+  isEdit = false,
+  initialData,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
+}: { 
+  trigger?: React.ReactNode;
+  isEdit?: boolean;
+  initialData?: any;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? setControlledOpen : setInternalOpen;
+
+  const [activityType, setActivityType] = useState(initialData?.type || 'call');
+  const [customer, setCustomer] = useState(initialData?.customerId || '1');
   const [contactPerson, setContactPerson] = useState('');
-  const [subject, setSubject] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState<Date>(new Date());
+  const [subject, setSubject] = useState(initialData?.title || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [date, setDate] = useState<Date>(initialData?.timestamp ? new Date(initialData.timestamp) : new Date());
   const [duration, setDuration] = useState('');
   const [durationUnit, setDurationUnit] = useState('minutes');
   const [nextSteps, setNextSteps] = useState('');
@@ -145,6 +162,8 @@ export function ActivityFormDialog({ trigger }: { trigger?: React.ReactNode }) {
   const availableContacts = contacts.filter((c) => c.customerId === customer);
 
   const handleSave = () => {
+    if (!setOpen) return;
+    
     if (!subject || !description) {
       toast.error('Pflichtfelder fehlen', {
         description: 'Bitte füllen Sie alle erforderlichen Felder aus.',
@@ -152,7 +171,7 @@ export function ActivityFormDialog({ trigger }: { trigger?: React.ReactNode }) {
       return;
     }
 
-    toast.success('Aktivität wurde protokolliert', {
+    toast.success(isEdit ? 'Aktivität aktualisiert' : 'Aktivität wurde protokolliert', {
       description: 'Die Aktivität wurde erfolgreich gespeichert.',
       action: {
         label: 'Rückgängig',
@@ -160,10 +179,11 @@ export function ActivityFormDialog({ trigger }: { trigger?: React.ReactNode }) {
       },
     });
     setOpen(false);
-    resetForm();
+    if (!isEdit) resetForm();
   };
 
   const handleSaveAndNew = () => {
+    if (!setOpen) return;
     handleSave();
     setOpen(true);
   };
@@ -213,17 +233,10 @@ export function ActivityFormDialog({ trigger }: { trigger?: React.ReactNode }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Aktivität erfassen
-          </Button>
-        )}
-      </DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Aktivität erfassen</DialogTitle>
+            <DialogTitle>{isEdit ? 'Aktivität bearbeiten' : 'Aktivität erfassen'}</DialogTitle>
             <DialogDescription>
               {customer && (
                 <Badge variant="secondary" className="mt-2">
@@ -461,14 +474,16 @@ export function ActivityFormDialog({ trigger }: { trigger?: React.ReactNode }) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button variant="outline" onClick={() => setOpen && setOpen(false)}>
               Abbrechen
             </Button>
+            {!isEdit && (
             <Button variant="outline" onClick={handleSaveAndNew}>
               <Save className="mr-2 h-4 w-4" />
               Speichern & Neu
             </Button>
-            <Button onClick={handleSave}>Aktivität speichern</Button>
+            )}
+            <Button onClick={handleSave}>{isEdit ? 'Speichern' : 'Aktivität speichern'}</Button>
           </DialogFooter>
         </DialogContent>
     </Dialog>

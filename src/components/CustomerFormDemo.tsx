@@ -51,28 +51,36 @@ const admUsers = [
 ];
 
 // Full Customer Form
-function CustomerForm({ currentUserRole = 'PLAN', isEdit = false }: { currentUserRole?: UserRole; isEdit?: boolean }) {
+export function CustomerForm({ 
+  currentUserRole = 'PLAN', 
+  isEdit = false,
+  customTrigger 
+}: { 
+  currentUserRole?: UserRole; 
+  isEdit?: boolean;
+  customTrigger?: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   // Form fields
-  const [companyName, setCompanyName] = useState('');
-  const [vatId, setVatId] = useState('');
-  const [customerType, setCustomerType] = useState('');
-  const [industry, setIndustry] = useState('');
-  const [rating, setRating] = useState('');
-  const [street, setStreet] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [city, setCity] = useState('');
+  const [companyName, setCompanyName] = useState(isEdit ? 'Hofladen Müller GmbH' : '');
+  const [vatId, setVatId] = useState(isEdit ? 'DE123456789' : '');
+  const [customerType, setCustomerType] = useState(isEdit ? 'direktvermarkter' : '');
+  const [industry, setIndustry] = useState(isEdit ? 'Lebensmitteleinzelhandel' : '');
+  const [rating, setRating] = useState(isEdit ? 'A' : '');
+  const [street, setStreet] = useState(isEdit ? 'Hauptstraße 15' : '');
+  const [postalCode, setPostalCode] = useState(isEdit ? '80331' : '');
+  const [city, setCity] = useState(isEdit ? 'München' : '');
   const [country, setCountry] = useState('Deutschland');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [website, setWebsite] = useState('');
-  const [creditLimit, setCreditLimit] = useState('');
-  const [paymentTerm, setPaymentTerm] = useState('');
-  const [notes, setNotes] = useState('');
+  const [email, setEmail] = useState(isEdit ? 'info@hofladen-mueller.de' : '');
+  const [phone, setPhone] = useState(isEdit ? '+49 89 12345678' : '');
+  const [website, setWebsite] = useState(isEdit ? 'https://www.hofladen-mueller.de' : '');
+  const [creditLimit, setCreditLimit] = useState(isEdit ? '50000' : '');
+  const [paymentTerm, setPaymentTerm] = useState(isEdit ? '30' : '');
+  const [notes, setNotes] = useState(isEdit ? 'Kunde legt großen Wert auf regionale Produkte.' : '');
   const [owner, setOwner] = useState('1');
-  const [gdprMarketing, setGdprMarketing] = useState(false);
+  const [gdprMarketing, setGdprMarketing] = useState(isEdit ? true : false);
   const [gdprAI, setGdprAI] = useState(false);
   const [gdprPartner, setGdprPartner] = useState(false);
 
@@ -161,7 +169,7 @@ function CustomerForm({ currentUserRole = 'PLAN', isEdit = false }: { currentUse
       setIsLoading(false);
       toast.success(isEdit ? 'Kunde wurde erfolgreich aktualisiert' : 'Kunde wurde erfolgreich angelegt');
       setOpen(false);
-      resetForm();
+      if (!isEdit) resetForm();
     }, 1500);
   };
 
@@ -191,13 +199,15 @@ function CustomerForm({ currentUserRole = 'PLAN', isEdit = false }: { currentUse
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
       setOpen(isOpen);
-      if (!isOpen) resetForm();
+      if (!isOpen && !isEdit) resetForm();
     }}>
       <DialogTrigger asChild>
-        <Button disabled={isReadOnly}>
-          <Plus className="mr-2 h-4 w-4" />
-          {isEdit ? 'Kunde bearbeiten' : 'Neuer Kunde'}
-        </Button>
+        {customTrigger ? customTrigger : (
+          <Button disabled={isReadOnly}>
+            <Plus className="mr-2 h-4 w-4" />
+            {isEdit ? 'Kunde bearbeiten' : 'Neuer Kunde'}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -731,238 +741,38 @@ function VisualFormExample() {
                 <Label>Telefon</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input value="+49-89-1234567" readOnly className="bg-muted pl-10" />
+                  <Input value="+49 89 12345678" readOnly className="bg-muted pl-10" />
                 </div>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
-
-      <p className="text-sm text-muted-foreground">
-        Statische Darstellung mit ausgefüllten Beispieldaten
-      </p>
-    </div>
-  );
-}
-
-// Validation Examples
-function ValidationExamples() {
-  return (
-    <div className="space-y-4">
-      <h4 className="mb-4">Validierungsbeispiele</h4>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Required Field Error */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Pflichtfeld-Validierung</CardTitle>
-            <CardDescription>Fehler wenn erforderliches Feld leer ist</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Label>
-              Firmenname <span className="text-destructive">*</span>
-            </Label>
-            <Input className="border-destructive" />
-            <p className="text-sm text-destructive flex items-center gap-1">
-              <AlertCircle className="h-3 w-3" />
-              Firmenname ist ein Pflichtfeld
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Format Validation */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Format-Validierung</CardTitle>
-            <CardDescription>Fehler bei ungültigem Format</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Label>Umsatzsteuer-ID</Label>
-            <Input value="ABC123" className="border-destructive" readOnly />
-            <p className="text-sm text-destructive flex items-center gap-1">
-              <AlertCircle className="h-3 w-3" />
-              Umsatzsteuer-ID muss im Format DE123456789 sein
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Email Validation */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">E-Mail-Validierung</CardTitle>
-            <CardDescription>Fehler bei ungültiger E-Mail</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Label>E-Mail</Label>
-            <Input value="invalid-email" className="border-destructive" readOnly />
-            <p className="text-sm text-destructive flex items-center gap-1">
-              <AlertCircle className="h-3 w-3" />
-              Bitte geben Sie eine gültige E-Mail-Adresse ein
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Postal Code Validation */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">PLZ-Validierung</CardTitle>
-            <CardDescription>Fehler bei ungültiger PLZ</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Label>
-              Postleitzahl <span className="text-destructive">*</span>
-            </Label>
-            <Input value="123" className="border-destructive" readOnly />
-            <p className="text-sm text-destructive flex items-center gap-1">
-              <AlertCircle className="h-3 w-3" />
-              PLZ muss 5-stellig sein
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <p className="text-sm text-muted-foreground">
-        Validierung erfolgt bei Blur (Verlassen des Feldes) und beim Absenden
-      </p>
-    </div>
-  );
-}
-
-// RBAC Examples
-function RBACExamples() {
-  const roles: UserRole[] = ['GF', 'PLAN', 'ADM', 'KALK', 'BUCH'];
-
-  return (
-    <div className="space-y-4">
-      <h4 className="mb-4">RBAC-Zugriffskontrolle</h4>
-
-      <div className="grid gap-4">
-        {roles.map((role) => (
-          <Card key={role}>
-            <CardHeader>
-              <CardTitle className="text-base">Rolle: {role}</CardTitle>
-              <CardDescription>
-                {role === 'GF' && 'Geschäftsführung - Voller Zugriff'}
-                {role === 'PLAN' && 'Planung - Voller Zugriff'}
-                {role === 'ADM' && 'Außendienst - Kann nur eigene Kunden erstellen'}
-                {role === 'KALK' && 'Kalkulation - Nur Lesezugriff'}
-                {role === 'BUCH' && 'Buchhaltung - Nur Lesezugriff'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor={`owner-${role}`}>
-                  Verantwortlicher Mitarbeiter <span className="text-destructive">*</span>
-                </Label>
-                <Select disabled={role === 'ADM' || role === 'KALK' || role === 'BUCH'}>
-                  <SelectTrigger id={`owner-${role}`}>
-                    <SelectValue placeholder="Michael Schmidt" />
-                  </SelectTrigger>
-                </Select>
-                {role === 'ADM' && (
-                  <p className="text-xs text-muted-foreground">
-                    ADM-Benutzer können nur eigene Kunden erstellen
-                  </p>
-                )}
-                {(role === 'KALK' || role === 'BUCH') && (
-                  <p className="text-xs text-muted-foreground">
-                    Nur-Lese-Zugriff für diese Rolle
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <p className="text-sm text-muted-foreground">
-        Unterschiedliche Zugriffsrechte basierend auf Benutzerrolle
-      </p>
     </div>
   );
 }
 
 export function CustomerFormDemo() {
-  const [selectedRole, setSelectedRole] = useState<UserRole>('PLAN');
-
   return (
     <div className="space-y-8">
       <Card>
         <CardHeader>
           <CardTitle>Vollständiges Kundenformular</CardTitle>
           <CardDescription>
-            Formular zum Erstellen und Bearbeiten von Kundendaten mit Validierung und RBAC
+            Dialog mit Validierung, Tabs, Rich Text Editor und DSGVO-Konformität
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <Label>Benutzerrolle simulieren:</Label>
-              <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as UserRole)}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="GF">GF</SelectItem>
-                  <SelectItem value="PLAN">PLAN</SelectItem>
-                  <SelectItem value="ADM">ADM</SelectItem>
-                  <SelectItem value="KALK">KALK</SelectItem>
-                  <SelectItem value="BUCH">BUCH</SelectItem>
-                </SelectContent>
-              </Select>
-              <Badge variant={selectedRole === 'KALK' || selectedRole === 'BUCH' ? 'secondary' : 'default'}>
-                {selectedRole === 'KALK' || selectedRole === 'BUCH' ? 'Nur Lesen' : 
-                 selectedRole === 'ADM' ? 'Eingeschränkt' : 'Voller Zugriff'}
-              </Badge>
-            </div>
-
-            <CustomerForm currentUserRole={selectedRole} />
+          <div className="flex gap-4">
+            <CustomerForm />
+            <CustomerForm isEdit={true} />
           </div>
-
-          <p className="text-sm text-muted-foreground mt-4">
-            5 Abschnitte: Grunddaten, Rechnungsadresse, Kontaktdaten, Geschäftsdaten, Inhaber & DSGVO
-          </p>
         </CardContent>
       </Card>
 
       <Separator />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Visuelles Beispiel</CardTitle>
-          <CardDescription>
-            Statisches Formular mit ausgefüllten Beispieldaten
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <VisualFormExample />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Validierungsregeln</CardTitle>
-          <CardDescription>
-            Verschiedene Validierungsfehler mit deutschen Fehlermeldungen
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ValidationExamples />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>RBAC-Zugriffskontrolle</CardTitle>
-          <CardDescription>
-            Rollenbasierte Zugriffskontrolle für verschiedene Benutzerrollen
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RBACExamples />
-        </CardContent>
-      </Card>
+      <VisualFormExample />
 
       <Separator />
 
@@ -972,61 +782,31 @@ export function CustomerFormDemo() {
           <div className="border border-border rounded-lg p-4">
             <h4 className="mb-2">Formular-Layout</h4>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Dialog: 800px Breite (Desktop)</li>
-              <li>• 2-Spalten-Grid (Desktop)</li>
-              <li>• Einzelne Spalte (Mobile)</li>
-              <li>• Scrollbarer Inhalt (70vh max)</li>
-              <li>• Sticky Footer mit Buttons</li>
+              <li>• Dialog: 800px Breite</li>
+              <li>• Sticky Header & Footer</li>
+              <li>• Scrollbarer Content</li>
+              <li>• Klare Sektionen mit Überschriften</li>
+              <li>• Pflichtfelder mit Sternchen *</li>
             </ul>
           </div>
           <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Abschnitte</h4>
+            <h4 className="mb-2">Eingabeelemente</h4>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• 1. Grunddaten</li>
-              <li>• 2. Rechnungsadresse</li>
-              <li>• 3. Kontaktdaten</li>
-              <li>• 4. Geschäftsdaten</li>
-              <li>• 5. Inhaber & DSGVO</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Pflichtfelder</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Firmenname *</li>
-              <li>• Straße *</li>
-              <li>• PLZ * (5-stellig)</li>
-              <li>• Stadt *</li>
-              <li>• Verantwortlicher Mitarbeiter *</li>
+              <li>• Inputs: Volle Breite oder Grid</li>
+              <li>• Selects: Für vordefinierte Optionen</li>
+              <li>• Checkboxen: Für Ja/Nein (DSGVO)</li>
+              <li>• Rich Text: Für Notizen</li>
+              <li>• Icons in Inputs für Kontext</li>
             </ul>
           </div>
           <div className="border border-border rounded-lg p-4">
             <h4 className="mb-2">Validierung</h4>
             <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• Echtzeit bei Blur</li>
-              <li>• Vor Submit: Alle Felder</li>
-              <li>• Roter Rahmen bei Fehler</li>
-              <li>• Fehlermeldung mit Icon</li>
-              <li>• Scroll zu erstem Fehler</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">RBAC-Regeln</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• GF/PLAN: Voller Zugriff</li>
-              <li>• ADM: Inhaber = Self (fix)</li>
-              <li>• KALK: Nur Lesen</li>
-              <li>• BUCH: Nur Lesen</li>
-              <li>• Button deaktiviert (readonly)</li>
-            </ul>
-          </div>
-          <div className="border border-border rounded-lg p-4">
-            <h4 className="mb-2">Spezielle Felder</h4>
-            <ul className="space-y-1 text-sm text-muted-foreground">
-              <li>• USt-ID: DE + 9 Ziffern</li>
-              <li>• PLZ: 5 Ziffern</li>
-              <li>• Bewertung: A/B/C mit Sternen</li>
-              <li>• Kreditlimit: € Suffix</li>
-              <li>• Notizen: 500 Zeichen max</li>
+              <li>• Live-Validierung bei Blur</li>
+              <li>• Rote Umrandung bei Fehlern</li>
+              <li>• Fehlermeldung unter dem Feld</li>
+              <li>• Submit-Blockierung bei Fehlern</li>
+              <li>• Erfolgs-Toast nach Speichern</li>
             </ul>
           </div>
         </div>

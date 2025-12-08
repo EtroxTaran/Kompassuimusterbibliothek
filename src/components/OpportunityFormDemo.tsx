@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { RichTextEditor } from './RichTextEditor';
 import { Slider } from './ui/slider';
+import { RichTextEditor } from './RichTextEditor';
 import {
   Dialog,
   DialogContent,
@@ -43,6 +42,7 @@ import {
   Save,
   ChevronRight,
   User,
+  Loader2,
 } from 'lucide-react';
 
 // User role type
@@ -94,15 +94,6 @@ const statusConfig: Record<
   },
 };
 
-// Add initial status
-// @ts-ignore
-statusConfig['initial'] = {
-  label: 'Erstkontakt',
-  icon: Circle,
-  color: 'text-chart-1',
-  bgColor: 'bg-chart-1/10',
-};
-
 // Customers
 const customers = [
   { id: '1', name: 'Hofladen Müller GmbH', location: 'München' },
@@ -131,24 +122,26 @@ function formatCurrency(amount: number): string {
 }
 
 // Full Opportunity Form
-export function OpportunityFormDemo({
+export function OpportunityForm({
   currentUserRole = 'ADM',
   isEdit = false,
+  customTrigger,
 }: {
   currentUserRole?: UserRole;
   isEdit?: boolean;
+  customTrigger?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   // Form fields
-  const [customerId, setCustomerId] = useState('2');
-  const [title, setTitle] = useState('');
+  const [customerId, setCustomerId] = useState(isEdit ? '2' : '2');
+  const [title, setTitle] = useState(isEdit ? 'Ladeneinrichtung Neueröffnung' : '');
   const [description, setDescription] = useState('');
-  const [estimatedValue, setEstimatedValue] = useState('125000');
-  const [probability, setProbability] = useState([75]);
-  const [status, setStatus] = useState<OpportunityStatus>('proposal');
-  const [expectedCloseDate, setExpectedCloseDate] = useState('');
+  const [estimatedValue, setEstimatedValue] = useState(isEdit ? '125000' : '125000');
+  const [probability, setProbability] = useState([isEdit ? 75 : 50]);
+  const [status, setStatus] = useState<OpportunityStatus>(isEdit ? 'proposal' : 'new');
+  const [expectedCloseDate, setExpectedCloseDate] = useState(isEdit ? '2025-02-15' : '');
   const [nextStep, setNextStep] = useState('');
   const [lostReason, setLostReason] = useState('');
   const [lostCompetitor, setLostCompetitor] = useState('');
@@ -266,18 +259,18 @@ export function OpportunityFormDemo({
         }
       );
       setOpen(false);
-      resetForm();
+      if (!isEdit) resetForm();
     }, 1500);
   };
 
   const resetForm = () => {
-    setCustomerId('');
-    setTitle('');
+    setCustomerId(isEdit ? '2' : '2');
+    setTitle(isEdit ? 'Ladeneinrichtung Neueröffnung' : '');
     setDescription('');
-    setEstimatedValue('');
-    setProbability([50]);
-    setStatus('new');
-    setExpectedCloseDate('');
+    setEstimatedValue(isEdit ? '125000' : '125000');
+    setProbability([isEdit ? 75 : 50]);
+    setStatus(isEdit ? 'proposal' : 'new');
+    setExpectedCloseDate(isEdit ? '2025-02-15' : '');
     setNextStep('');
     setLostReason('');
     setLostCompetitor('');
@@ -312,14 +305,16 @@ export function OpportunityFormDemo({
       open={open}
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
-        if (!isOpen) resetForm();
+        if (!isOpen && !isEdit) resetForm();
       }}
     >
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          {isEdit ? 'Opportunity bearbeiten' : 'Neue Opportunity'}
-        </Button>
+        {customTrigger ? customTrigger : (
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            {isEdit ? 'Opportunity bearbeiten' : 'Neue Opportunity'}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -763,7 +758,7 @@ export function OpportunityFormDemo({
             Abbrechen
           </Button>
           <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isEdit ? 'Speichern' : 'Opportunity erstellen'}
           </Button>
         </DialogFooter>
@@ -771,3 +766,5 @@ export function OpportunityFormDemo({
     </Dialog>
   );
 }
+
+export const OpportunityFormDemo = OpportunityForm;

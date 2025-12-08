@@ -87,6 +87,8 @@ import {
   ExternalLink,
 } from 'lucide-react';
 
+import { InvoiceForm } from './InvoiceFormDemo';
+
 // Invoice types
 type InvoiceStatus = 'draft' | 'pending' | 'paid' | 'overdue' | 'partial' | 'cancelled';
 
@@ -656,6 +658,7 @@ function InvoiceListView({ userRole = 'GF' }: { userRole?: 'GF' | 'BUCH' | 'PLAN
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(20);
+  const [showNewInvoiceDialog, setShowNewInvoiceDialog] = useState(false);
 
   // Calculate KPIs
   const kpis = useMemo(() => {
@@ -989,10 +992,21 @@ function InvoiceListView({ userRole = 'GF' }: { userRole?: 'GF' | 'BUCH' | 'PLAN
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Neue Rechnung
-              </Button>
+              <Dialog open={showNewInvoiceDialog} onOpenChange={setShowNewInvoiceDialog}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Neue Rechnung
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Neue Rechnung erstellen</DialogTitle>
+                    <DialogDescription>Erstellen Sie eine neue, GoBD-konforme Rechnung.</DialogDescription>
+                  </DialogHeader>
+                  <InvoiceForm currentUserRole={userRole} onCancel={() => setShowNewInvoiceDialog(false)} />
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </CardContent>

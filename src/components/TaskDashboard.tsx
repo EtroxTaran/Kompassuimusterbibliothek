@@ -40,7 +40,12 @@ import {
   UserCircle,
   ChevronDown,
   X,
+  LayoutDashboard,
+  List as ListIcon,
+  GripVertical,
 } from 'lucide-react';
+
+import { TaskForm } from './TaskForm';
 
 // Task types
 type TaskPriority = 'low' | 'medium' | 'high' | 'urgent' | 'critical';
@@ -351,23 +356,101 @@ function EmptyState({
   );
 }
 
+// Kanban Column Component
+function KanbanColumn({
+  status,
+  title,
+  tasks,
+  onDrop,
+}: {
+  status: TaskStatus;
+  title: string;
+  tasks: Task[];
+  onDrop: (taskId: string, newStatus: TaskStatus) => void;
+}) {
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const taskId = e.dataTransfer.getData('taskId');
+    if (taskId) {
+      onDrop(taskId, status);
+    }
+  };
+
+  return (
+    <div
+      className={`flex-1 min-w-[300px] bg-muted/30 rounded-lg border border-border flex flex-col max-h-[calc(100vh-250px)] ${
+        isDragOver ? 'ring-2 ring-primary bg-accent/30' : ''
+      }`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Header */}
+      <div className="p-3 border-b border-border bg-muted/50 rounded-t-lg flex items-center justify-between sticky top-0">
+        <div className="flex items-center gap-2">
+          {getStatusIcon(status)}
+          <h4 className="font-medium text-sm">{title}</h4>
+          <Badge variant="secondary" className="text-xs">
+            {tasks.length}
+          </Badge>
+        </div>
+      </div>
+
+      {/* Tasks */}
+      <div className="p-3 space-y-3 overflow-y-auto flex-1">
+        {tasks.map((task) => (
+          <div
+            key={task.id}
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.setData('taskId', task.id);
+            }}
+            className="cursor-grab active:cursor-grabbing"
+          >
+            <TaskCard task={task} variant="compact" />
+          </div>
+        ))}
+        {tasks.length === 0 && (
+          <div className="h-24 flex items-center justify-center border-2 border-dashed border-border rounded-lg text-muted-foreground text-sm">
+            Keine Aufgaben
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Desktop Task Dashboard
 export function TaskDashboard() {
+  const [tasks, setTasks] = useState<Task[]>(mockTasks);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>(['open', 'in_progress']);
   const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>(['high', 'urgent', 'critical']);
   const [selectedTaskTypes, setSelectedTaskTypes] = useState<('personal' | 'project')[]>(['personal', 'project']);
   const [selectedDueDateFilter, setSelectedDueDateFilter] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'compact' | 'expanded'>('compact');
+  const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
   const [sortBy, setSortBy] = useState<'dueDate' | 'priority' | 'created' | 'title'>('dueDate');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [showNewTaskForm, setShowNewTaskForm] = useState(false);
 
   // Calculate stats
   const stats = {
-    open: mockTasks.filter((t) => t.status === 'open').length,
-    inProgress: mockTasks.filter((t) => t.status === 'in_progress').length,
-    overdue: mockTasks.filter((t) => t.isOverdue).length,
-    thisWeek: mockTasks.filter((t) => {
+    open: tasks.filter((t) => t.status === 'open').length,
+    inProgress: tasks.filter((t) => t.status === 'in_progress').length,
+    overdue: tasks.filter((t) => t.isOverdue).length,
+    thisWeek: tasks.filter((t) => {
       if (!t.dueDate) return false;
       const weekFromNow = new Date();
       weekFromNow.setDate(weekFromNow.getDate() + 7);
@@ -376,7 +459,7 @@ export function TaskDashboard() {
   };
 
   // Filter tasks
-  const filteredTasks = mockTasks.filter((task) => {
+  const filteredTasks = tasks.filter((task) => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = selectedStatuses.length === 0 || selectedStatuses.includes(task.status);
     const matchesPriority = selectedPriorities.length === 0 || selectedPriorities.includes(task.priority);
@@ -500,12 +583,24 @@ export function TaskDashboard() {
           >
             {sortDirection === 'asc' ? '↑' : '↓'}
           </Button>
-          <Button>
+          <Button onClick={() => setShowNewTaskForm(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Neue Aufgabe
           </Button>
         </div>
       </div>
+
+      <TaskForm
+        mode="create"
+        taskType="user_task" // Default to user task, form handles switching internally if implemented or just simple creation
+        open={showNewTaskForm}
+        onCancel={() => setShowNewTaskForm(false)}
+        onSubmit={async (data) => {
+            console.log(data);
+            setShowNewTaskForm(false);
+            toast.success("Aufgabe erstellt");
+        }}
+      />
 
       {/* Overview Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -582,7 +677,7 @@ export function TaskDashboard() {
                         </span>
                       </span>
                       <span className="text-muted-foreground">
-                        ({mockTasks.filter((t) => t.status === status).length})
+                        ({tasks.filter((t) => t.status === status).length})
                       </span>
                     </label>
                   </div>
@@ -611,7 +706,7 @@ export function TaskDashboard() {
                         {priority === 'urgent' && 'Dringend'}
                       </span>
                       <span className="text-muted-foreground">
-                        ({mockTasks.filter((t) => t.priority === priority).length})
+                        ({tasks.filter((t) => t.priority === priority).length})
                       </span>
                     </label>
                   </div>
@@ -634,7 +729,7 @@ export function TaskDashboard() {
                   <label htmlFor="type-personal" className="flex-1 flex items-center justify-between cursor-pointer">
                     <span>Persönliche Aufgaben</span>
                     <span className="text-muted-foreground">
-                      ({mockTasks.filter((t) => !t.project).length})
+                      ({tasks.filter((t) => !t.project).length})
                     </span>
                   </label>
                 </div>
@@ -647,7 +742,7 @@ export function TaskDashboard() {
                   <label htmlFor="type-project" className="flex-1 flex items-center justify-between cursor-pointer">
                     <span>Projekt-Aufgaben</span>
                     <span className="text-muted-foreground">
-                      ({mockTasks.filter((t) => t.project).length})
+                      ({tasks.filter((t) => t.project).length})
                     </span>
                   </label>
                 </div>
@@ -697,18 +792,29 @@ export function TaskDashboard() {
             <p className="text-muted-foreground">
               {sortedTasks.length} {sortedTasks.length === 1 ? 'Aufgabe' : 'Aufgaben'}
             </p>
-            <Select value={viewMode} onValueChange={(v: any) => setViewMode(v)}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="compact">Kompakt</SelectItem>
-                <SelectItem value="expanded">Erweitert</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                className="h-8 px-3 gap-2"
+                onClick={() => setViewMode('list')}
+              >
+                <ListIcon className="h-4 w-4" />
+                Liste
+              </Button>
+              <Button
+                variant={viewMode === 'board' ? 'default' : 'ghost'}
+                size="sm"
+                className="h-8 px-3 gap-2"
+                onClick={() => setViewMode('board')}
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                Board
+              </Button>
+            </div>
           </div>
 
-          {/* Task Cards */}
+          {/* Task Content */}
           {sortedTasks.length === 0 ? (
             <EmptyState
               icon={<ListTodo className="h-16 w-16" />}
@@ -717,10 +823,33 @@ export function TaskDashboard() {
               actionLabel="Filter zurücksetzen"
               onAction={clearFilters}
             />
-          ) : (
+          ) : viewMode === 'list' ? (
             <div className="space-y-3">
               {sortedTasks.map((task) => (
-                <TaskCard key={task.id} task={task} variant={viewMode} />
+                <TaskCard key={task.id} task={task} variant="compact" />
+              ))}
+            </div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-4">
+              {(['open', 'in_progress', 'review', 'blocked', 'completed'] as TaskStatus[]).map((status) => (
+                <KanbanColumn
+                  key={status}
+                  status={status}
+                  title={
+                    status === 'open' ? 'Offen' :
+                    status === 'in_progress' ? 'In Bearbeitung' :
+                    status === 'review' ? 'Review' :
+                    status === 'blocked' ? 'Blockiert' : 'Erledigt'
+                  }
+                  tasks={sortedTasks.filter((t) => t.status === status)}
+                  onDrop={(taskId, newStatus) => {
+                    const newTasks = tasks.map((t) =>
+                      t.id === taskId ? { ...t, status: newStatus } : t
+                    );
+                    setTasks(newTasks);
+                    toast.success('Status aktualisiert');
+                  }}
+                />
               ))}
             </div>
           )}

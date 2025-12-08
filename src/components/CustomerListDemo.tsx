@@ -51,6 +51,8 @@ import {
 } from 'lucide-react';
 import { useData, Customer } from './providers/DataProvider';
 
+import { CustomerForm } from './CustomerFormDemo';
+
 // Helper functions
 const statusConfig: Record<string, { label: string; variant: 'default' | 'destructive' }> = {
   active: { label: 'Aktiv', variant: 'default' },
@@ -188,9 +190,14 @@ function CustomerRow({
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onView}>
             <Eye className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onEdit}>
-            <Pencil className="h-4 w-4" />
-          </Button>
+          <CustomerForm 
+            isEdit={true} 
+            customTrigger={
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Pencil className="h-4 w-4" />
+              </Button>
+            }
+          />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -321,7 +328,7 @@ export function CustomerListView({ userRole = 'PLAN', onCustomerClick }: { userR
                     </div>
                 </SheetContent>
              </Sheet>
-             <Button><Plus className="mr-2 h-4 w-4" /> Neu</Button>
+             <CustomerForm />
            </div>
 
            <div className="border rounded-lg overflow-hidden">

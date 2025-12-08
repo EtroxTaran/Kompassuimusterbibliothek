@@ -453,13 +453,13 @@ export function KPICards({ data }: { data: KPIData }) {
 }
 
 // Today's Deliveries Component
-export function TodaysDeliveries({ deliveries }: { deliveries: Delivery[] }) {
+export function TodaysDeliveries({ deliveries, onNavigate }: { deliveries: Delivery[], onNavigate?: (path: string) => void }) {
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Heutige Lieferungen</CardTitle>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => onNavigate && onNavigate('material')}>
             Alle anzeigen
             <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
@@ -673,7 +673,7 @@ export function PendingInvoices({ invoices }: { invoices: SupplierInvoice[] }) {
 }
 
 // Supplier Overview Component
-export function SupplierOverview({ suppliers }: { suppliers: SupplierCard[] }) {
+export function SupplierOverview({ suppliers, onNavigate }: { suppliers: SupplierCard[], onNavigate?: (path: string) => void }) {
   return (
     <Card>
       <CardHeader>
@@ -683,7 +683,7 @@ export function SupplierOverview({ suppliers }: { suppliers: SupplierCard[] }) {
             <Button variant="outline" size="sm">
               Top-bewertet {'>'}4.5★
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => onNavigate && onNavigate('lieferanten')}>
               Alle anzeigen
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
@@ -786,7 +786,7 @@ export function ProjectAssignments({ assignments }: { assignments: ProjectAssign
 }
 
 // Main Dashboard Component
-export function INNDashboardDemo() {
+export function INNDashboardDemo({ onNavigate }: { onNavigate?: (path: string) => void }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
@@ -803,7 +803,7 @@ export function INNDashboardDemo() {
              <FileText className="mr-2 h-4 w-4" />
              Bericht exportieren
            </Button>
-           <Button>
+           <Button onClick={() => onNavigate && onNavigate('material')}>
              <Plus className="mr-2 h-4 w-4" />
              Neue Bestellung
            </Button>
@@ -823,7 +823,7 @@ export function INNDashboardDemo() {
           
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
             <div className="col-span-4">
-              <TodaysDeliveries deliveries={mockDeliveries} />
+              <TodaysDeliveries deliveries={mockDeliveries} onNavigate={onNavigate} />
             </div>
             <div className="col-span-3">
               <PendingInvoices invoices={mockInvoices} />
@@ -835,7 +835,7 @@ export function INNDashboardDemo() {
 
         <TabsContent value="deliveries" className="space-y-4">
            <div className="grid gap-4 md:grid-cols-1">
-              <TodaysDeliveries deliveries={mockDeliveries} />
+              <TodaysDeliveries deliveries={mockDeliveries} onNavigate={onNavigate} />
            </div>
         </TabsContent>
         
@@ -845,7 +845,7 @@ export function INNDashboardDemo() {
         </TabsContent>
 
         <TabsContent value="suppliers" className="space-y-4">
-           <SupplierOverview suppliers={mockSuppliers} />
+           <SupplierOverview suppliers={mockSuppliers} onNavigate={onNavigate} />
            <ProjectAssignments assignments={mockAssignments} />
         </TabsContent>
       </Tabs>

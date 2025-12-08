@@ -399,6 +399,7 @@ export function ActivityTimeline({ initialActivities }: { initialActivities?: Ac
   const [selectedTypes, setSelectedTypes] = useState<ActivityType[]>([]);
   const [dateFilter, setDateFilter] = useState('7');
   const [showFilters, setShowFilters] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
 
   // Filter activities
   const filteredActivities = activities.filter((activity) => {
@@ -609,7 +610,7 @@ export function ActivityTimeline({ initialActivities }: { initialActivities?: Ac
                     <div key={activity.id} className="relative pl-12">
                       <ActivityCard
                         activity={activity}
-                        onEdit={() => toast.info('Bearbeiten-Funktion')}
+                        onEdit={() => setEditingActivity(activity)}
                         onDelete={() => {
                           setActivities(activities.filter((a) => a.id !== activity.id));
                           toast.success('Aktivität gelöscht');
@@ -628,6 +629,13 @@ export function ActivityTimeline({ initialActivities }: { initialActivities?: Ac
           </div>
         )}
       </div>
+
+      <ActivityFormDialog
+        open={!!editingActivity}
+        onOpenChange={(open) => !open && setEditingActivity(null)}
+        isEdit={true}
+        initialData={editingActivity}
+      />
     </div>
   );
 }
